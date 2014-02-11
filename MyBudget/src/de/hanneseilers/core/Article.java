@@ -1,12 +1,16 @@
 package de.hanneseilers.core;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Article {
 
 	private int aid = -1;
-	private int cid = -1;
+	
 	private String article = "";
-	private long timestamp = 0;
+	private Date date = new Date();
 	private double price = 0.0;
+	private Category category;
 	
 	/**
 	 * Constructor (sets nothing)
@@ -14,48 +18,48 @@ public class Article {
 	public Article() {}
 	
 	/**
-	 * Constructor (sets current timestamp)
+	 * Constructor (sets current date)
 	 * @param article
 	 * @param price
 	 */
 	public Article(String article, double price){
 		this.article = article;
 		this.price = price;
-		this.timestamp = System.currentTimeMillis();
+		this.date.setTime(System.currentTimeMillis());
 	}
 	
 	/**
 	 * Constructor
 	 * @param article
 	 * @param price
-	 * @param timestamp
+	 * @param date
 	 */
-	public Article(String article, double price, long timestamp){
+	public Article(String article, double price, Date date){
 		this(article, price);
-		this.timestamp = timestamp;
+		this.date = date;
 	}
 	
 	/**
-	 * Constructor (sets current timestamp)
+	 * Constructor (sets current date)
 	 * @param article
 	 * @param price
-	 * @param cid
+	 * @param category
 	 */
-	public Article(String article, double price, int cid){
+	public Article(String article, double price, Category category){
 		this(article, price);
-		this.cid = cid;
+		this.category = category;
 	}
 	
 	/**
 	 * Constructor
 	 * @param article
 	 * @param price
-	 * @param timestamp
-	 * @param cid
+	 * @param date
+	 * @param category
 	 */
-	public Article(String article, double price, long timestamp, int cid){
-		this(article, price, timestamp);
-		this.cid = cid;
+	public Article(String article, double price, Date date, Category category){
+		this(article, price, date);
+		this.category = category;
 	}
 
 	/**
@@ -73,20 +77,6 @@ public class Article {
 	}
 
 	/**
-	 * @return the cid
-	 */
-	public int getCid() {
-		return cid;
-	}
-
-	/**
-	 * @param cid the cid to set
-	 */
-	public void setCid(int cid) {
-		this.cid = cid;
-	}
-
-	/**
 	 * @return the article
 	 */
 	public String getArticle() {
@@ -101,17 +91,17 @@ public class Article {
 	}
 
 	/**
-	 * @return the timestamp
+	 * @return the date
 	 */
-	public long getTimestamp() {
-		return timestamp;
+	public Date getDate() {
+		return date;
 	}
 
 	/**
-	 * @param timestamp the timestamp to set
+	 * @param date the date to set
 	 */
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
+	public void setDate(Date date) {
+		this.date = date;
 	}
 
 	/**
@@ -126,6 +116,27 @@ public class Article {
 	 */
 	public void setPrice(double price) {
 		this.price = price;
+	}
+	
+	/**
+	 * @return String representation of article
+	 */
+	public String toString(){
+		return (new SimpleDateFormat("dd.MM.yyyy")).format(date) + " - " + article + "\t" + Double.toString(price);
+	}
+
+	/**
+	 * @return the category
+	 */
+	public Category getCategory() {
+		return category;
+	}
+
+	/**
+	 * @param category the category to set
+	 */
+	public void setCategory(Category category) {
+		this.category = category;
 	}
 	
 }

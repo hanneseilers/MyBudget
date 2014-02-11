@@ -18,8 +18,8 @@ public class MyBudget {
 	 */
 	public static void initCategories(){
 		database.addCategory("Lebenmittel");
-		database.addCategory("Getränke");
-		database.addCategory("Süßigkeiten");
+		database.addCategory("Getrï¿½nke");
+		database.addCategory("Sï¿½ï¿½igkeiten");
 		database.addCategory("Haus");
 		database.addCategory("Auto");
 		database.addCategory("Versicherungen");
@@ -49,6 +49,8 @@ public class MyBudget {
 		
 		// Create gui page objects
 		new PageStart();
+		Article a = new Article("test", 15.45);
+		System.out.println(a);
 	}
 
 }

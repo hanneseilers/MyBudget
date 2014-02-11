@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -132,17 +132,64 @@ public class DBController {
 	}
 	
 	/**
+	 * @param name
+	 * @return Category found by name
+	 */
+	public Category getCategory(String name){
+		return getCategory(-1, name);
+	}
+	
+	/**
+	 * @param cid
+	 * @return Category found by cid
+	 */
+	public Category getCategory(int cid){
+		return getCategory(cid, null);
+	}
+	
+	/**
+	 * Gets categor from one of the following parameters.
+	 * The other parameter should be null or negative.
+	 * @param cid
+	 * @param name
+	 * @return Category or null if not found
+	 */
+	private Category getCategory(int cid, String name){
+		try{			
+			String sql = "";
+		
+			if( cid != -1 )
+				// search by CID
+				sql = "SELECT * FROM categories WHERE cid='" + Integer.toString(cid) + "'";
+			else if( name != null )
+				// search by name
+				sql = "SELECT * FROM categories WHERE name='" + name + "'";
+			
+			if( sql != "" ){
+				ResultSet result = exec(sql);
+				if( result.first() )
+					return new Category( result.getInt("cid"), result.getString("name") );
+			}		
+		} catch( SQLException e ){
+			e.printStackTrace();
+		}
+		
+		// category not found
+		return null;
+	}
+	
+	/**
 	 * @return List of categories
 	 */
-	public HashMap<String, Integer> getCategories(){
-		HashMap<String, Integer> categories = new HashMap<String, Integer>();
+	public List<Category> getCategories(){
+		List<Category> categories = new ArrayList<Category>();
 		
 		try {
 		
 			String sql = "SELECT * FROM categories";
 			ResultSet result = exec(sql);	
 			while( result.next() )
-				categories.put( result.getString("name"),  result.getInt("cid") );
+				categories.add( new Category(result.getInt("cid"), result.getString("name")) );
 			
 		} catch( SQLException e ){
 			e.printStackTrace();
@@ -151,15 +198,15 @@ public class DBController {
 		return categories;
 	}
 	
+
 	/**
 	 * Updates category
-	 * @param cid
 	 * @param category
 	 */
-	public void updateCategory(int cid, String category){
+	public void updateCategory(Category category){
 		String sql = "UPDATE categories SET name='"
-				+ category + "' WHERE cid="
-				+ Integer.toString(cid) + ";";
+				+ category.getName() + "' WHERE cid="
+				+ Integer.toString(category.getCID()) + ";";
 		exeUpdate(sql);		
 	}
 	
@@ -185,8 +232,8 @@ public class DBController {
 			while( result.next() ){
 				Article a = new Article(result.getString("article"),
 						result.getDouble("price"),
-						result.getLong("timestamp"),
-						result.getInt("cid"));
+						new Date(result.getLong("timestamp")),
+						getCategory(result.getInt("cid")) );
 				articles.add( a );
 			}
 			
