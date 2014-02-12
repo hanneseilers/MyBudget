@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 /**
  * Database controller
  * @author Hannes Eilers
@@ -18,18 +20,20 @@ public class DBController {
 	
 	private Connection connection = null;
 	private boolean dbReady = false;
+	private Logger logger = Logger.getLogger(getClass());
 
 	public DBController() {
 		
 		try {
 		
 			// Connect to database
+			logger.debug("Connecting to database");
 			Class.forName("org.sqlite.JDBC");
 			connection = DriverManager.getConnection("jdbc:sqlite:mybudget.db");
 			initDB();
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Can not connect to database: " + e.getMessage());
 		}
 	}
 	
@@ -65,11 +69,12 @@ public class DBController {
 		
 		try {
 			
+			logger.debug("Executing sql statement: " + sql);
 			Statement st = connection.createStatement();		
 			result = st.executeQuery( sql );
 			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Can not execute sql statement: " + e.getMessage());		
 		}
 		
 		return result;
@@ -82,12 +87,13 @@ public class DBController {
 	private void exeUpdate(String sql){
 		try{
 			
+			logger.debug("Executing updating sql statement: " + sql);
 			Statement st = connection.createStatement();
 			st.executeUpdate( sql );
 			st.close();
 			
 		} catch(SQLException e){
-			e.printStackTrace();
+			logger.error("Can not execute sql statement: " + e.getMessage());
 		}
 	}
 	
@@ -98,10 +104,11 @@ public class DBController {
 		if( connection != null ){
 			try {
 				
+				logger.debug("Closing database connection");
 				connection.close();
 				
 			} catch (SQLException e) {
-				e.printStackTrace();
+				logger.error("Can not close database connection: " + e.getMessage());
 			}
 		}
 	}
@@ -111,18 +118,25 @@ public class DBController {
 	 * @param category
 	 * @return true if successfully
 	 */
-	public boolean addCategory(String category){
+	public boolean addCategory(Category category){
 		try {
 			
 			// First check if category is already there
-			String sql = "SELECT COUNT(*) AS num FROM categories WHERE name='" + category + "';";
-			if( exec(sql).getInt("num") == 0 ){	
+			String sql = "SELECT COUNT(*) AS num FROM categories WHERE name='" + Integer.toString(category.getCID()) + "';";
+			if( category.getCID() < 0 || exec(sql).getInt("num") == 0 ){	
 				
 				// Add category
-				sql = "INSERT INTO categories (cid, name) VALUES (?, '" + category + "');";
+				sql = "INSERT INTO categories (cid, name) VALUES (?, '" + category.getName() + "');";
 				exeUpdate(sql);
-				return true;
-						
+				
+				// Set new categorys cid
+				sql = "SELECT cid FROM categories ORDER BY cid DESC;";
+				ResultSet result = exec(sql);
+				if( result.getType() == ResultSet.TYPE_FORWARD_ONLY || result.first() ){
+					category.setCID( result.getInt("cid") );
+					return true;
+				}
+
 			}
 			
 		} catch (SQLException e) {
@@ -167,8 +181,9 @@ public class DBController {
 			
 			if( sql != "" ){
 				ResultSet result = exec(sql);
-				if( result.first() )
-					return new Category( result.getInt("cid"), result.getString("name") );
+				if( result.first() ){
+					return new Category( result.getString("name"), result.getInt("cid") );
+				}
 			}		
 		} catch( SQLException e ){
 			e.printStackTrace();
@@ -188,8 +203,10 @@ public class DBController {
 		
 			String sql = "SELECT * FROM categories";
 			ResultSet result = exec(sql);	
-			while( result.next() )
-				categories.add( new Category(result.getInt("cid"), result.getString("name")) );
+			while( result.next() ){
+				Category category = new Category( result.getString("name"), result.getInt("cid") );
+				categories.add( category );
+			}
 			
 		} catch( SQLException e ){
 			e.printStackTrace();
@@ -204,10 +221,12 @@ public class DBController {
 	 * @param category
 	 */
 	public void updateCategory(Category category){
-		String sql = "UPDATE categories SET name='"
-				+ category.getName() + "' WHERE cid="
-				+ Integer.toString(category.getCID()) + ";";
-		exeUpdate(sql);		
+		if( !addCategory(category) ){
+			String sql = "UPDATE categories SET name='"
+					+ category.getName() + "' WHERE cid="
+					+ Integer.toString(category.getCID()) + ";";
+			exeUpdate(sql);	
+		}
 	}
 	
 
@@ -242,6 +261,54 @@ public class DBController {
 		}
 		
 		return articles;		
+	}
+	
+	public boolean addArticle(Article article){
+		try {
+			
+			// First check if article is already there
+			String sql = "SELECT COUNT(*) AS num FROM articles WHERE aid='" + Integer.toString(article.getAid()) + "';";
+			if( article.getAid() < 0 || exec(sql).getInt("num") == 0 ){	
+				
+				// Add areticle
+				sql = "INSERT INTO articles (aid, article, price, timestamp, cid) VALUES (?, '"
+				+ article.getArticle() + ","
+				+ Double.toString(article.getPrice()) + ","
+				+ Long.toString(article.getDate().getTime()) + ","
+				+ Integer.toString(article.getCategory().getCID())
+				+ "');";
+				exeUpdate(sql);
+				
+				// Set new articles aid
+				sql = "SELECT aid FROM articles ORDER BY aid DESC;";
+				ResultSet result = exec(sql);
+				if( result.getType() == ResultSet.TYPE_FORWARD_ONLY || result.first() ){
+					article.setAid( result.getInt("aid") );
+					return true;
+				}
+						
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}		
+		return false;
+	}
+	
+	/**
+	 * Updates article and adds it if not already in database
+	 * @param article
+	 */
+	public void updateArticle(Article article){
+		if( !addArticle(article) ){
+			String sql = "UPDATE articles SET name='"
+					+ article.getArticle() + "',"
+					+ "price='" + Double.toString(article.getPrice() )+ "'"
+					+ "timestamp='" + Long.toString(article.getDate().getTime()) + "'"
+					+ "cid='" + Integer.toString(article.getCategory().getCID()) + "'"
+					+ " WHERE aid="	+ Integer.toString(article.getAid()) + ";";
+			exeUpdate(sql);	
+		}
 	}
 
 	/**

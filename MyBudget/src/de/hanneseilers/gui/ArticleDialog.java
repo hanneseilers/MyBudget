@@ -11,6 +11,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.forms.factories.FormFactory;
+import com.toedter.calendar.JDateChooser;
 
 import de.hanneseilers.core.Article;
 import de.hanneseilers.core.Category;
@@ -37,6 +38,7 @@ public class ArticleDialog extends JDialog {
 	private JComboBox<Category> cmbCategory;
 	private JRadioButton rdbtnIncome;
 	private JRadioButton rdbtnOutgo;
+	private JDateChooser dateChooser;
 	
 	/**
 	 * Data of dialog
@@ -62,8 +64,10 @@ public class ArticleDialog extends JDialog {
 	 * @param aArticle
 	 */
 	public ArticleDialog(ArticleDialogType aType, Article aArticle) {
+		// set dialog title
 		setTitle( aType.getTitle() );
 		
+		// set article
 		if( aArticle != null ){
 			article = aArticle;
 		}
@@ -104,8 +108,15 @@ public class ArticleDialog extends JDialog {
 		lblDatum.setVerticalAlignment(SwingConstants.TOP);
 		lblDatum.setHorizontalAlignment(SwingConstants.RIGHT);
 		contentPanel.add(lblDatum, "2, 4");
-
-		// TODO: Adding date picker component
+		
+		dateChooser = new JDateChooser();
+		if( article != null ){
+			dateChooser.setDate( article.getDate() );
+		}
+		else{
+			dateChooser.setDate( new Date(System.currentTimeMillis()) );
+		}
+		contentPanel.add( dateChooser, "4, 4, 3, 1" );
 
 		JLabel lblPrice = new JLabel("Preis:");
 		contentPanel.add(lblPrice, "2, 6, right, default");
@@ -147,15 +158,31 @@ public class ArticleDialog extends JDialog {
 				
 				// Get article data
 				String articleName = txtArticle.getText();
-				Double articlePrice = Double.parseDouble( txtPrice.getText() );
-				Category category = (Category) cmbCategory.getSelectedItem();
+				Double articlePrice = 0.0;
+				Date articleDate = dateChooser.getDate();
+				try{
+					articlePrice = Double.parseDouble( txtPrice.getText().replace(',', '.') );
+				}
+				catch(NumberFormatException e){
+					articlePrice = 0.0;
+				}
+				Category articleCategory = (Category) cmbCategory.getSelectedItem();
 				
 				if( article == null ){
-					article = new Article();
+					// add new article
+					article = new Article( articleName, articlePrice, articleDate, articleCategory );
+				}
+				else{
+					// update article
+					article.setArticle(articleName);
+					article.setDate(articleDate);
+					article.setPrice(articlePrice);
+					article.setCategory(articleCategory);
 				}
 					
 			}
 		});
+		this.
 		btnSave.setActionCommand("OK");
 		buttonPane.add(btnSave);
 		getRootPane().setDefaultButton(btnSave);
@@ -172,6 +199,7 @@ public class ArticleDialog extends JDialog {
 	public void showDialog(){
 		setModal(true);
 		setVisible(true);
+		System.out.println(article);
 	}
 
 	/**

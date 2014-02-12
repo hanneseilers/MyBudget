@@ -5,12 +5,13 @@ import java.util.Date;
 
 public class Article {
 
+	private DBController db = MyBudget.database;
 	private int aid = -1;
 	
 	private String article = "";
 	private Date date = new Date();
 	private double price = 0.0;
-	private Category category;
+	private Category category = new Category();
 	
 	/**
 	 * Constructor (sets nothing)
@@ -23,9 +24,9 @@ public class Article {
 	 * @param price
 	 */
 	public Article(String article, double price){
-		this.article = article;
-		this.price = price;
-		this.date.setTime(System.currentTimeMillis());
+		setArticle(article);
+		setPrice(price);
+		setDate( new Date(System.currentTimeMillis()) );
 	}
 	
 	/**
@@ -36,7 +37,7 @@ public class Article {
 	 */
 	public Article(String article, double price, Date date){
 		this(article, price);
-		this.date = date;
+		setDate(date);
 	}
 	
 	/**
@@ -47,7 +48,7 @@ public class Article {
 	 */
 	public Article(String article, double price, Category category){
 		this(article, price);
-		this.category = category;
+		setCategory(category);
 	}
 	
 	/**
@@ -59,7 +60,23 @@ public class Article {
 	 */
 	public Article(String article, double price, Date date, Category category){
 		this(article, price, date);
-		this.category = category;
+		setCategory(category);
+	}
+	
+	/**
+	 * Constructor
+	 * @param article
+	 * @param price
+	 * @param date
+	 * @param category
+	 * @param aid
+	 */
+	public Article(String article, double price, Date date, Category category, int aid){
+		setAid(aid);
+		setArticle(article);
+		setPrice(price);
+		setDate(date);
+		setCategory(category);
 	}
 
 	/**
@@ -68,7 +85,7 @@ public class Article {
 	public int getAid() {
 		return aid;
 	}
-
+	
 	/**
 	 * @param aid the aid to set
 	 */
@@ -88,6 +105,7 @@ public class Article {
 	 */
 	public void setArticle(String article) {
 		this.article = article;
+		update();
 	}
 
 	/**
@@ -102,6 +120,7 @@ public class Article {
 	 */
 	public void setDate(Date date) {
 		this.date = date;
+		update();
 	}
 
 	/**
@@ -116,15 +135,9 @@ public class Article {
 	 */
 	public void setPrice(double price) {
 		this.price = price;
+		update();
 	}
 	
-	/**
-	 * @return String representation of article
-	 */
-	public String toString(){
-		return (new SimpleDateFormat("dd.MM.yyyy")).format(date) + " - " + article + "\t" + Double.toString(price);
-	}
-
 	/**
 	 * @return the category
 	 */
@@ -137,6 +150,24 @@ public class Article {
 	 */
 	public void setCategory(Category category) {
 		this.category = category;
+		update();
+	}
+	
+	
+	/**
+	 * Updates this article
+	 */
+	private void update(){
+		if( db.isDbReady() ){
+			db.updateArticle(this);
+		}
+	}
+	
+	/**
+	 * @return String representation of article
+	 */
+	public String toString(){
+		return (new SimpleDateFormat("dd.MM.yyyy")).format(date) + " - " + article + "\t" + Double.toString(price);
 	}
 	
 }

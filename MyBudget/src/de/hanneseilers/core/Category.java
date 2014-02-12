@@ -2,12 +2,31 @@ package de.hanneseilers.core;
 
 public class Category {
 
+	DBController db = MyBudget.database;
 	private int cid = -1;
 	private String name = "";
 	
-	public Category(int aCID, String aName){
-		cid = aCID;
-		name = aName;
+	/**
+	 * Constructor
+	 */
+	public Category(){}
+	
+	/**
+	 * Constructor
+	 * @param aName
+	 */
+	public Category(String name){
+		setName(name);
+	}
+	
+	/**
+	 * Constructor
+	 * @param name
+	 * @param cid
+	 */
+	public Category(String name, int cid){
+		setCID(cid);
+		setName(name);
 	}
 	
 	/**
@@ -36,6 +55,16 @@ public class Category {
 	 */
 	public void setName(String name) {
 		this.name = name;
+		update();
+	}
+	
+	/**
+	 * Updates this article
+	 */
+	private void update(){
+		if( db.isDbReady() ){
+			db.updateCategory(this);
+		}
 	}
 	
 	/**
