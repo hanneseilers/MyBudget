@@ -42,7 +42,7 @@ public class MyBudget {
 		// Create gui page objects
 		new PageStart();
 		
-		Article a = new Article("test", 15.45);
+		Article a = new Article("test", 15.45, new Category("test"));
 		System.out.println(a);
 	}
 	

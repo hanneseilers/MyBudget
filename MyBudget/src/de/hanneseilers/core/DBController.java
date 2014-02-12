@@ -122,8 +122,8 @@ public class DBController {
 		try {
 			
 			// First check if category is already there
-			String sql = "SELECT COUNT(*) AS num FROM categories WHERE name='" + Integer.toString(category.getCID()) + "';";
-			if( category.getCID() < 0 || exec(sql).getInt("num") == 0 ){	
+			String sql = "SELECT COUNT(*) AS num FROM categories WHERE name='" + category.getName() + "';";
+			if( exec(sql).getInt("num") == 0 ){	
 				
 				// Add category
 				sql = "INSERT INTO categories (cid, name) VALUES (?, '" + category.getName() + "');";
@@ -137,6 +137,12 @@ public class DBController {
 					return true;
 				}
 
+			}
+			else{
+				
+				// set category vid
+				category.setCID( getCategory(category.getName()).getCID() );
+				
 			}
 			
 		} catch (SQLException e) {
@@ -181,8 +187,11 @@ public class DBController {
 			
 			if( sql != "" ){
 				ResultSet result = exec(sql);
-				if( result.first() ){
-					return new Category( result.getString("name"), result.getInt("cid") );
+				if( result.getType() == ResultSet.TYPE_FORWARD_ONLY || result.first() ){
+					Category category = new Category(false);
+					category.setName( result.getString("name") );
+					category.setCID( result.getInt("cid") );
+					return category;
 				}
 			}		
 		} catch( SQLException e ){
@@ -204,7 +213,10 @@ public class DBController {
 			String sql = "SELECT * FROM categories";
 			ResultSet result = exec(sql);	
 			while( result.next() ){
-				Category category = new Category( result.getString("name"), result.getInt("cid") );
+				Category category = new Category(false);
+				category.setName( result.getString("name") ); 
+				category.setCID( result.getInt("cid") );
+				category.setDynObj(true);
 				categories.add( category );
 			}
 			
@@ -232,28 +244,25 @@ public class DBController {
 
 	/**
 	 * Recieves list of articles
-	 * @param contion	SQL Condition to add to request
+	 * @param condition	SQL Condition to add to request
 	 * @return
 	 */
-	public List<Article> getArticles(String contion){		
+	public List<Article> getArticles(String condition){		
 		List<Article> articles = new ArrayList<Article>();
 		
 		try{
 			
-			String sql = "SELECT * FROM articles ";
-			
-			// select conditions
-			if( contion.length() > 0 )
-				sql += contion;
-			sql += ";";
+			String sql = "SELECT * FROM articles " + condition + ";";
 			
 			ResultSet result = exec(sql);
 			while( result.next() ){
-				Article a = new Article(result.getString("article"),
-						result.getDouble("price"),
-						new Date(result.getLong("timestamp")),
-						getCategory(result.getInt("cid")) );
-				articles.add( a );
+				Article article = new Article(false);
+				article.setArticle( result.getString("article") );
+				article.setPrice( result.getDouble("price") );
+				article.setDate( new Date(result.getLong("timestamp")) );
+				article.setCategory( getCategory(result.getInt("cid")) );
+				article.setDynObj(true);
+				articles.add( article );
 			}
 			
 		} catch(SQLException e){
@@ -271,12 +280,12 @@ public class DBController {
 			if( article.getAid() < 0 || exec(sql).getInt("num") == 0 ){	
 				
 				// Add areticle
-				sql = "INSERT INTO articles (aid, article, price, timestamp, cid) VALUES (?, '"
-				+ article.getArticle() + ","
+				sql = "INSERT INTO articles (aid, article, price, timestamp, cid) VALUES (?,"
+				+ "'" + article.getArticle() + "',"
 				+ Double.toString(article.getPrice()) + ","
 				+ Long.toString(article.getDate().getTime()) + ","
 				+ Integer.toString(article.getCategory().getCID())
-				+ "');";
+				+ ");";
 				exeUpdate(sql);
 				
 				// Set new articles aid

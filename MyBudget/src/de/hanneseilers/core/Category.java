@@ -5,11 +5,21 @@ public class Category {
 	DBController db = MyBudget.database;
 	private int cid = -1;
 	private String name = "";
+	private boolean dynObj = true;
 	
 	/**
 	 * Constructor
 	 */
 	public Category(){}
+	
+	/**
+	 * Constructor
+	 * @param nondynObj If false the object is
+	 * not automatically updated on database
+	 */
+	public Category(boolean dynObj){
+		this.dynObj = dynObj;
+	}
 	
 	/**
 	 * Constructor
@@ -62,7 +72,7 @@ public class Category {
 	 * Updates this article
 	 */
 	private void update(){
-		if( db.isDbReady() ){
+		if( dynObj && db.isDbReady() ){
 			db.updateCategory(this);
 		}
 	}
@@ -72,6 +82,20 @@ public class Category {
 	 */
 	public String toString(){
 		return name;
+	}
+
+	/**
+	 * @return the dynObj
+	 */
+	public boolean isDynObj() {
+		return dynObj;
+	}
+
+	/**
+	 * @param dynObj the dynObj to set
+	 */
+	public void setDynObj(boolean dynObj) {
+		this.dynObj = dynObj;
 	}
 	
 }

@@ -11,12 +11,22 @@ public class Article {
 	private String article = "";
 	private Date date = new Date();
 	private double price = 0.0;
-	private Category category = new Category();
+	private Category category = new Category(false);
+	private boolean dynObj = true;
 	
 	/**
-	 * Constructor (sets nothing)
+	 * Constructor
 	 */
-	public Article() {}
+	public Article(){}
+	
+	/**
+	 * Constructor
+	 * @param nondynObj If false the object is
+	 * not automatically updated on database
+	 */
+	public Article(boolean dynObj) {
+		this.dynObj = dynObj;
+	}
 	
 	/**
 	 * Constructor (sets current date)
@@ -158,7 +168,7 @@ public class Article {
 	 * Updates this article
 	 */
 	private void update(){
-		if( db.isDbReady() ){
+		if( dynObj && db.isDbReady() ){
 			db.updateArticle(this);
 		}
 	}
@@ -168,6 +178,20 @@ public class Article {
 	 */
 	public String toString(){
 		return (new SimpleDateFormat("dd.MM.yyyy")).format(date) + " - " + article + "\t" + Double.toString(price);
+	}
+
+	/**
+	 * @return the dynObj
+	 */
+	public boolean isDynObj() {
+		return dynObj;
+	}
+
+	/**
+	 * @param dynObj the dynObj to set
+	 */
+	public void setDynObj(boolean dynObj) {
+		this.dynObj = dynObj;
 	}
 	
 }
