@@ -4,7 +4,10 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import de.hanneseilers.gui.MainFrame;
+import de.hanneseilers.gui.PageIncome;
+import de.hanneseilers.gui.PageOutgo;
 import de.hanneseilers.gui.PageStart;
+import de.hanneseilers.gui.SplashScreen;
 
 /**
  * Main
@@ -13,8 +16,8 @@ import de.hanneseilers.gui.PageStart;
  */
 public class MyBudget {
 
-	public static final MainFrame frmMain = new MainFrame();
-	public static final DBController database = new DBController();
+	public static MainFrame frmMain = null;
+	public static DBController database = null;
 	
 	private Logger logger;
 	
@@ -22,12 +25,17 @@ public class MyBudget {
 	 * Constructor
 	 */
 	public MyBudget(){
+		SplashScreen splash = new SplashScreen();
+		
 		// Init logger
+		splash.setStatus("Loading logger...");
 		initLogger();
 		
 		logger.info("Application started.");
 		
 		// Wait for database creation
+		splash.setStatus("Initiating database...");
+		database = new DBController();
 		while( !database.isDbReady() ){
 			try {
 				Thread.sleep(10);
@@ -37,10 +45,22 @@ public class MyBudget {
 		}
 		
 		// Create categories
+		splash.setStatus("Initiating categories...");
 		initCategories();
 		
-		// Create gui page objects
+		// Create gui and gui page objects
+		splash.setStatus("Loading main frame pages...");
+		frmMain = new MainFrame();
+		
 		new PageStart();
+		new PageIncome();
+		new PageOutgo();
+		
+		// show main frame and dispose waiting dialog
+		splash.setStatus("Showing main frame...");
+		frmMain.setVisible(true);
+		splash.setVisible(false);
+		splash.dispose();
 
 	}
 	

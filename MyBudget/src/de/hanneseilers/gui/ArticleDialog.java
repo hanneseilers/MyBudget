@@ -15,6 +15,8 @@ import com.toedter.calendar.JDateChooser;
 
 import de.hanneseilers.core.Article;
 import de.hanneseilers.core.Category;
+import de.hanneseilers.core.DBController;
+import de.hanneseilers.core.MyBudget;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -23,9 +25,15 @@ import java.awt.GridLayout;
 import javax.swing.JRadioButton;
 import javax.swing.JComboBox;
 
+import org.apache.log4j.Logger;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Date;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
 public class ArticleDialog extends JDialog {
@@ -40,6 +48,9 @@ public class ArticleDialog extends JDialog {
 	private JRadioButton rdbtnOutgo;
 	private JDateChooser dateChooser;
 	
+	private DBController db = MyBudget.database;
+	private Logger logger = Logger.getLogger(getClass());
+	
 	/**
 	 * Data of dialog
 	 */
@@ -52,12 +63,28 @@ public class ArticleDialog extends JDialog {
 	 * @param aArticle
 	 */
 	public ArticleDialog(ArticleDialogType aType, Article aArticle) {
+		
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent arg0) {
+				dialogCanceled();
+			}
+		});
+		
 		// set dialog title
 		setTitle( aType.getTitle() );
+		
+		String articleName = "";
+		String articlePrice = "0.00";
+		Date articleDate = new Date(System.currentTimeMillis());
 		
 		// set article
 		if( aArticle != null ){
 			article = aArticle;
+			articleName = article.getArticle();
+			articlePrice = Double.toString(article.getPrice());
+			articleDate = article.getDate();
+			
 		}
 		
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);		
@@ -91,6 +118,7 @@ public class ArticleDialog extends JDialog {
 		txtArticle = new JTextField();
 		contentPanel.add(txtArticle, "4, 2, 3, 1, fill, default");
 		txtArticle.setColumns(10);
+		txtArticle.setText(articleName);
 
 		JLabel lblDatum = new JLabel("Datum:");
 		lblDatum.setVerticalAlignment(SwingConstants.TOP);
@@ -98,12 +126,7 @@ public class ArticleDialog extends JDialog {
 		contentPanel.add(lblDatum, "2, 4");
 		
 		dateChooser = new JDateChooser();
-		if( article != null ){
-			dateChooser.setDate( article.getDate() );
-		}
-		else{
-			dateChooser.setDate( new Date(System.currentTimeMillis()) );
-		}
+		dateChooser.setDate( articleDate );
 		contentPanel.add( dateChooser, "4, 4, 3, 1" );
 
 		JLabel lblPrice = new JLabel("Preis:");
@@ -111,9 +134,9 @@ public class ArticleDialog extends JDialog {
 
 		txtPrice = new JTextField();
 		txtPrice.setHorizontalAlignment(SwingConstants.RIGHT);
-		txtPrice.setText("0,00");
 		contentPanel.add(txtPrice, "4, 6, fill, default");
 		txtPrice.setColumns(10);
+		txtPrice.setText(articlePrice);
 
 		JLabel lblEUR = new JLabel("EUR");
 		contentPanel.add(lblEUR, "6, 6");
@@ -132,59 +155,116 @@ public class ArticleDialog extends JDialog {
 		JLabel lblCategory = new JLabel("Kategorie:");
 		contentPanel.add(lblCategory, "2, 10, right, default");
 
+		// add categories
 		cmbCategory = new JComboBox<Category>();
 		contentPanel.add(cmbCategory, "4, 10, 3, 1, fill, default");
+		for( Category c : db.getCategories() ){
+			cmbCategory.addItem(c);
+		}
+		
+		// select category of article in JComboBox
+		if( article != null
+				&& article.getCategory() != null
+				&& article.getCategory().getCID() > 0 ){
+			
+			String categoryName = article.getCategory().getName(); 
+			for( int i=0; i < cmbCategory.getItemCount(); i++ ){
+				if( cmbCategory.getItemAt(i).getName().equals(categoryName) ){
+					cmbCategory.setSelectedIndex(i);
+					break;
+				}
+			}
+			
+		}
 
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		getContentPane().add(buttonPane, BorderLayout.SOUTH);
 		
 		btnSave = new JButton("Speichern");
-		btnSave.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-				// Get article data
-				String articleName = txtArticle.getText();
-				Double articlePrice = 0.0;
-				Date articleDate = dateChooser.getDate();
-				try{
-					articlePrice = Double.parseDouble( txtPrice.getText().replace(',', '.') );
-				}
-				catch(NumberFormatException e){
-					articlePrice = 0.0;
-				}
-				Category articleCategory = (Category) cmbCategory.getSelectedItem();
-				
-				if( article == null ){
-					// add new article
-					article = new Article( articleName, articlePrice, articleDate, articleCategory );
-				}
-				else{
-					// update article
-					article.setArticle(articleName);
-					article.setDate(articleDate);
-					article.setPrice(articlePrice);
-					article.setCategory(articleCategory);
-				}
-					
+		btnSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				dialogSaved();
 			}
 		});
-		this.
 		btnSave.setActionCommand("OK");
 		buttonPane.add(btnSave);
 		getRootPane().setDefaultButton(btnSave);
 
 		btnCancel = new JButton("Abbrechen");
+		btnCancel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				dialogCanceled();
+			}
+		});
 		btnCancel.setActionCommand("Cancel");
 		buttonPane.add(btnCancel);
+		
+		// set income/outgo radio button selection
+		if( aType == ArticleDialogType.OUTGO_ADD
+				|| aType == ArticleDialogType.OUTGO_EDIT ){
+			rdbtnOutgo.setSelected(true);
+		}
 			
 	}
 	
 	/**
+	 * Call if dialog should be saved
+	 */
+	private void dialogSaved(){
+		
+		// Get article data
+		String articleName = txtArticle.getText();
+		Double articlePrice = 0.0;
+		Date articleDate = dateChooser.getDate();
+		try{
+			articlePrice = Double.parseDouble( txtPrice.getText().replace(',', '.') );
+		}
+		catch(NumberFormatException e){
+			articlePrice = 0.0;
+		}
+		Category articleCategory = cmbCategory.getItemAt( cmbCategory.getSelectedIndex() );
+		
+		// check for income or outgo
+		if( rdbtnOutgo.isSelected() ){
+			articlePrice *= -1.0;
+		}
+		
+		// check if to upodate or to add article
+		if( article == null ){
+			// add new article			
+			article = new Article( articleName, articlePrice, articleDate, articleCategory );
+			logger.debug("Added new article: " + article.toString());
+		}
+		else{
+			// update article
+			article.setArticle(articleName);
+			article.setDate(articleDate);
+			article.setPrice(articlePrice);
+			article.setCategory(articleCategory);
+			logger.debug("Updated article: " + article.toString());
+		}
+		logger.debug("Hiding dialog window: " + getTitle());
+		setVisible(false);		
+		
+	}
+	
+	/**
+	 * Call if dialog should be canceled
+	 */
+	private void dialogCanceled(){
+		logger.debug("Dialog window aborted.");
+		article = null;
+		setVisible(false);
+	}
+	
+	/**
 	 * Shows dialog
+	 * @param Returns edited article object or null if dialog closed
 	 */
 	public Article showDialog(){
+		logger.debug("Openening dialog: " + getTitle());
 		setModal(true);
 		setVisible(true);
 		return article;

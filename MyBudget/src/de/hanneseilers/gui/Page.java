@@ -11,6 +11,6 @@ import de.hanneseilers.core.MyBudget;
 public abstract class Page {
 	
 	protected MainFrame frmMain = MyBudget.frmMain;
-	protected DBController database = MyBudget.database;
+	protected DBController db = MyBudget.database;
 	
 }

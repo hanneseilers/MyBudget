@@ -13,6 +13,7 @@ public class Article {
 	private double price = 0.0;
 	private Category category = new Category(false);
 	private boolean synchronizing = true;
+	private int articleNameLength = 40;
 	
 	/**
 	 * Constructor
@@ -113,7 +114,19 @@ public class Article {
 	/**
 	 * @param article the article to set
 	 */
-	public void setArticle(String article) {
+	public void setArticle(String article){
+		article = article.trim();
+		
+		// check for empty article name
+		if( article.length() == 0 ){
+			article = ">NO NAME<";
+		}
+		
+		// check article names length
+		if( article.length() > articleNameLength ){
+			article = article.substring(0, articleNameLength);
+		}
+
 		this.article = article;
 		update();
 	}
@@ -144,7 +157,7 @@ public class Article {
 	 * @param price the price to set
 	 */
 	public void setPrice(double price) {
-		this.price = price;
+		this.price = Math.round( (price)*100 )/100.0;
 		update();
 	}
 	
@@ -167,7 +180,7 @@ public class Article {
 	/**
 	 * Updates this article
 	 */
-	private void update(){
+	public void update(){
 		if( synchronizing && db.isDbReady() ){
 			db.updateArticle(this);
 		}
@@ -177,7 +190,9 @@ public class Article {
 	 * @return String representation of article
 	 */
 	public String toString(){
-		return (new SimpleDateFormat("dd.MM.yyyy")).format(date) + " - " + article + "\t" + Double.toString(price);
+		String ret = String.format( "%s %-" + articleNameLength + "s %3s %9.2f EUR",
+				(new SimpleDateFormat("dd.MM.yyyy")).format(date), article, " ", price );
+		return  ret;
 	}
 
 	/**

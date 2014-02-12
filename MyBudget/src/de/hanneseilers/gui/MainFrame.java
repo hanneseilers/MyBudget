@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import java.awt.GridLayout;
 
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
@@ -26,6 +27,7 @@ import java.awt.Font;
 import java.awt.Color;
 import javax.swing.ImageIcon;
 import javax.swing.JRadioButton;
+import javax.swing.ListSelectionModel;
 
 /**
  * Main GUI frame
@@ -45,6 +47,10 @@ public class MainFrame {
 	public JButton btnStartOverview;
 	public JButton btnStartOutgo;
 	public JButton btnStartSettings;
+	
+	public DefaultListModel<Article> lstIncomeModel;
+	public DefaultListModel<Article> lstOutgoModel;
+	public DefaultListModel<Article> lstOverviewModel;
 	
 	public JPanel tabOutgo;
 	public JComboBox<Category> cmbOutgoCategory;
@@ -86,7 +92,7 @@ public class MainFrame {
 	public JPanel panOutgoButtons;
 	public JPanel panOutgoFilter;
 	public JButton btnOutgoAdd;
-	public JButton btnOoutgoDelete;
+	public JButton btnOutgoDelete;
 	public JButton btnOutgoEdit;
 	public JRadioButton rdbtnOutgoFilterCategory;
 	public JButton btnOutgoFilter;
@@ -108,7 +114,15 @@ public class MainFrame {
 	 */
 	public MainFrame() {
 		initialize();
-		frmMain.setVisible(true);
+		frmMain.setVisible(false);
+	}
+	
+	/**
+	 * Sets visibility of frame
+	 * @param b
+	 */
+	public void setVisible(boolean b){
+		frmMain.setVisible(b);
 	}
 
 	/**
@@ -186,7 +200,10 @@ public class MainFrame {
 		lblIncomeHeader.setFont(new Font("Dialog", Font.BOLD, 14));
 		tabIncome.add(lblIncomeHeader, "2, 2");
 		
-		lstIncome = new JList<Article>();
+		lstIncomeModel = new DefaultListModel<Article>();
+		lstIncome = new JList<Article>(lstIncomeModel);
+		lstIncome.setFont(new Font("Lucida Sans Typewriter", Font.BOLD, 12));
+		lstIncome.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tabIncome.add(lstIncome, "2, 4, fill, fill");
 		
 		panIncomeButtons = new JPanel();
@@ -259,7 +276,10 @@ public class MainFrame {
 		lbOutgoHeader.setHorizontalAlignment(SwingConstants.CENTER);
 		tabOutgo.add(lbOutgoHeader, "2, 2");
 		
-		lstOutgo = new JList<Article>();
+		lstOutgoModel = new DefaultListModel<Article>();
+		lstOutgo = new JList<Article>(lstOutgoModel);
+		lstOutgo.setFont(new Font("Lucida Sans Typewriter", Font.BOLD, 12));
+		lstOutgo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tabOutgo.add(lstOutgo, "2, 4, fill, fill");
 		
 		panOutgoButtons = new JPanel();
@@ -269,8 +289,8 @@ public class MainFrame {
 		btnOutgoAdd = new JButton("Artikel hinzufügen");
 		panOutgoButtons.add(btnOutgoAdd);
 		
-		btnOoutgoDelete = new JButton("Artikel löschen");
-		panOutgoButtons.add(btnOoutgoDelete);
+		btnOutgoDelete = new JButton("Artikel löschen");
+		panOutgoButtons.add(btnOutgoDelete);
 		
 		btnOutgoEdit = new JButton("Artikel bearbeiten");
 		panOutgoButtons.add(btnOutgoEdit);
@@ -393,7 +413,11 @@ public class MainFrame {
 		
 		lblTrend = new JLabel("Nicht genug Daten");
 		tabOverview.add(lblTrend, "10, 12, left, default");
-		lstOverviewArticles = new JList<Article>();
+		
+		lstOverviewModel = new DefaultListModel<Article>();
+		lstOverviewArticles = new JList<Article>(lstOverviewModel);
+		lstOverviewArticles.setFont(new Font("Lucida Sans Typewriter", Font.BOLD, 12));
+		lstOverviewArticles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tabOverview.add(lstOverviewArticles, "2, 14, 9, 1, fill, fill");
 		
 		tabSettings = new JPanel();

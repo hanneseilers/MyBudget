@@ -33,7 +33,7 @@ public class DBController {
 			initDB();
 			
 		} catch (Exception e) {
-			logger.error("Can not connect to database: " + e.getMessage());
+			logger.fatal("Can not connect to database: " + e.getMessage());
 		}
 	}
 	
@@ -83,18 +83,24 @@ public class DBController {
 	/**
 	 * Executes sql update
 	 * @param sql
+	 * @return true if successfull
 	 */
-	private void exeUpdate(String sql){
+	private boolean exeUpdate(String sql){
 		try{
 			
 			logger.debug("Executing updating sql statement: " + sql);
 			Statement st = connection.createStatement();
-			st.executeUpdate( sql );
+			int ret = st.executeUpdate( sql );
 			st.close();
+			
+			if( ret != 0 ){
+				return true;
+			}
 			
 		} catch(SQLException e){
 			logger.error("Can not execute sql statement: " + e.getMessage());
 		}
+		return false;
 	}
 	
 	/**
@@ -127,7 +133,9 @@ public class DBController {
 				
 				// Add category
 				sql = "INSERT INTO categories (cid, name) VALUES (?, '" + category.getName() + "');";
-				exeUpdate(sql);
+				if( !exeUpdate(sql) ){
+					throw new SQLException("Unable to insert data into categories table.");
+				}
 				
 				// Set new categorys cid
 				sql = "SELECT cid FROM categories ORDER BY cid DESC;";
@@ -146,7 +154,7 @@ public class DBController {
 			}
 			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Can not add category " + category.getName() + ":" + e.getMessage());
 		}		
 		return false;
 	}
@@ -191,11 +199,12 @@ public class DBController {
 					Category category = new Category(false);
 					category.setName( result.getString("name") );
 					category.setCID( result.getInt("cid") );
+					category.setSynchronizing(true);
 					return category;
 				}
 			}		
 		} catch( SQLException e ){
-			e.printStackTrace();
+			logger.error("Can not get category information: " + e.getMessage());
 		}
 		
 		// category not found
@@ -221,7 +230,7 @@ public class DBController {
 			}
 			
 		} catch( SQLException e ){
-			e.printStackTrace();
+			logger.error("Can not get list of categories: " + e.getMessage());
 		}
 		
 		return categories;
@@ -250,6 +259,10 @@ public class DBController {
 	public List<Article> getArticles(String condition){		
 		List<Article> articles = new ArrayList<Article>();
 		
+		if( condition == null ){
+			condition = "";
+		}
+		
 		try{
 			
 			String sql = "SELECT * FROM articles " + condition + ";";
@@ -257,6 +270,7 @@ public class DBController {
 			ResultSet result = exec(sql);
 			while( result.next() ){
 				Article article = new Article(false);
+				article.setAid( result.getInt("aid") );
 				article.setArticle( result.getString("article") );
 				article.setPrice( result.getDouble("price") );
 				article.setDate( new Date(result.getLong("timestamp")) );
@@ -266,7 +280,7 @@ public class DBController {
 			}
 			
 		} catch(SQLException e){
-			e.printStackTrace();
+			logger.error("Can not get list of articles: " + e.getMessage());
 		}
 		
 		return articles;		
@@ -286,7 +300,9 @@ public class DBController {
 				+ Long.toString(article.getDate().getTime()) + ","
 				+ Integer.toString(article.getCategory().getCID())
 				+ ");";
-				exeUpdate(sql);
+				if( !exeUpdate(sql) ){
+					throw new SQLException("Unable to inster data into articles table.");
+				}
 				
 				// Set new articles aid
 				sql = "SELECT aid FROM articles ORDER BY aid DESC;";
@@ -299,8 +315,26 @@ public class DBController {
 			}
 			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Can not add article " + article.getArticle() + ": " + e.getMessage());
 		}		
+		return false;
+	}
+	
+	/**
+	 * Deletes a article from database
+	 * @param article
+	 * @return true if successfull
+	 */
+	public boolean deleteArticle(Article article){		
+		// Send delete sql statement to database
+		String sql = "DELETE FROM articles WHERE aid=" + Integer.toString(article.getAid())
+				+ " AND article='" + article.getArticle() + "';";
+		if( exeUpdate(sql) ){
+			logger.debug("Deleted " + article.getArticle() + " from database.");
+			return true;
+		}
+		
+		logger.debug("Could not delete article " + article.getArticle() + " from database.");
 		return false;
 	}
 	
@@ -310,11 +344,11 @@ public class DBController {
 	 */
 	public void updateArticle(Article article){
 		if( !addArticle(article) ){
-			String sql = "UPDATE articles SET name='"
+			String sql = "UPDATE articles SET article='"
 					+ article.getArticle() + "',"
-					+ "price='" + Double.toString(article.getPrice() )+ "'"
-					+ "timestamp='" + Long.toString(article.getDate().getTime()) + "'"
-					+ "cid='" + Integer.toString(article.getCategory().getCID()) + "'"
+					+ "price=" + Double.toString(article.getPrice() )+ ","
+					+ "timestamp=" + Long.toString(article.getDate().getTime()) + ","
+					+ "cid=" + Integer.toString(article.getCategory().getCID()) + ""
 					+ " WHERE aid="	+ Integer.toString(article.getAid()) + ";";
 			exeUpdate(sql);	
 		}
