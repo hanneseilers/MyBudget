@@ -45,18 +45,6 @@ public class ArticleDialog extends JDialog {
 	 */
 	private boolean isSaved = false;
 	private Article article = null;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			ArticleDialog dialog = new ArticleDialog( ArticleDialogType.NONE, null );
-			dialog.showDialog();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
 	/**
 	 * Create a dialog
@@ -196,10 +184,10 @@ public class ArticleDialog extends JDialog {
 	/**
 	 * Shows dialog
 	 */
-	public void showDialog(){
+	public Article showDialog(){
 		setModal(true);
 		setVisible(true);
-		System.out.println(article);
+		return article;
 	}
 
 	/**

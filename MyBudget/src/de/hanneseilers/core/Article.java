@@ -12,7 +12,7 @@ public class Article {
 	private Date date = new Date();
 	private double price = 0.0;
 	private Category category = new Category(false);
-	private boolean dynObj = true;
+	private boolean synchronizing = true;
 	
 	/**
 	 * Constructor
@@ -25,7 +25,7 @@ public class Article {
 	 * not automatically updated on database
 	 */
 	public Article(boolean dynObj) {
-		this.dynObj = dynObj;
+		this.synchronizing = dynObj;
 	}
 	
 	/**
@@ -168,7 +168,7 @@ public class Article {
 	 * Updates this article
 	 */
 	private void update(){
-		if( dynObj && db.isDbReady() ){
+		if( synchronizing && db.isDbReady() ){
 			db.updateArticle(this);
 		}
 	}
@@ -181,17 +181,17 @@ public class Article {
 	}
 
 	/**
-	 * @return the dynObj
+	 * @return the synchronizing
 	 */
-	public boolean isDynObj() {
-		return dynObj;
+	public boolean isSynchronizing() {
+		return synchronizing;
 	}
 
 	/**
-	 * @param dynObj the dynObj to set
+	 * @param synchronizing the synchronizing to set
 	 */
-	public void setDynObj(boolean dynObj) {
-		this.dynObj = dynObj;
+	public void setSynchronizing(boolean dynObj) {
+		this.synchronizing = dynObj;
 	}
 	
 }

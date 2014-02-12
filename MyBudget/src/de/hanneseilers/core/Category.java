@@ -5,7 +5,7 @@ public class Category {
 	DBController db = MyBudget.database;
 	private int cid = -1;
 	private String name = "";
-	private boolean dynObj = true;
+	private boolean synchronizing = true;
 	
 	/**
 	 * Constructor
@@ -18,7 +18,7 @@ public class Category {
 	 * not automatically updated on database
 	 */
 	public Category(boolean dynObj){
-		this.dynObj = dynObj;
+		this.synchronizing = dynObj;
 	}
 	
 	/**
@@ -72,7 +72,7 @@ public class Category {
 	 * Updates this article
 	 */
 	private void update(){
-		if( dynObj && db.isDbReady() ){
+		if( synchronizing && db.isDbReady() ){
 			db.updateCategory(this);
 		}
 	}
@@ -85,17 +85,17 @@ public class Category {
 	}
 
 	/**
-	 * @return the dynObj
+	 * @return the synchronizing
 	 */
-	public boolean isDynObj() {
-		return dynObj;
+	public boolean isSynchronizing() {
+		return synchronizing;
 	}
 
 	/**
-	 * @param dynObj the dynObj to set
+	 * @param synchronizing the synchronizing to set
 	 */
-	public void setDynObj(boolean dynObj) {
-		this.dynObj = dynObj;
+	public void setSynchronizing(boolean dynObj) {
+		this.synchronizing = dynObj;
 	}
 	
 }

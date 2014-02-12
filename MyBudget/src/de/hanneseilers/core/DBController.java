@@ -216,7 +216,7 @@ public class DBController {
 				Category category = new Category(false);
 				category.setName( result.getString("name") ); 
 				category.setCID( result.getInt("cid") );
-				category.setDynObj(true);
+				category.setSynchronizing(true);
 				categories.add( category );
 			}
 			
@@ -261,7 +261,7 @@ public class DBController {
 				article.setPrice( result.getDouble("price") );
 				article.setDate( new Date(result.getLong("timestamp")) );
 				article.setCategory( getCategory(result.getInt("cid")) );
-				article.setDynObj(true);
+				article.setSynchronizing(true);
 				articles.add( article );
 			}
 			
