@@ -13,7 +13,9 @@ public class Article {
 	private double price = 0.0;
 	private Category category = new Category(false);
 	private boolean synchronizing = true;
-	private int articleNameLength = 40;
+	
+	public static final int articleNameLength = Loader.config.getInt( ConfigurationValues.ARTICLE_NAME_LENGTH.getKey() );
+	public static final int timestampDay = Loader.config.getInt( ConfigurationValues.TIMESTAMP_DAYS.getKey() );
 	
 	/**
 	 * Constructor
@@ -37,7 +39,7 @@ public class Article {
 	public Article(String article, double price){
 		setArticle(article);
 		setPrice(price);
-		setDate( new Date(System.currentTimeMillis()) );
+		setDate( new Date( (System.currentTimeMillis() / timestampDay) * timestampDay) );
 	}
 	
 	/**
@@ -142,6 +144,7 @@ public class Article {
 	 * @param date the date to set
 	 */
 	public void setDate(Date date) {
+		date.setTime( (date.getTime() / timestampDay) * timestampDay );
 		this.date = date;
 		update();
 	}
@@ -179,11 +182,21 @@ public class Article {
 	
 	/**
 	 * Updates this article
+	 * @return True if successfull
 	 */
-	public void update(){
+	public boolean update(){
 		if( synchronizing && db.isDbReady() ){
-			db.updateArticle(this);
+			return db.updateArticle(this);
 		}
+		return false;
+	}
+	
+	/**
+	 * Deletes this article from database
+	 * @return True if successfull
+	 */
+	public boolean delete(){
+		return db.deleteArticle(this);
 	}
 	
 	/**

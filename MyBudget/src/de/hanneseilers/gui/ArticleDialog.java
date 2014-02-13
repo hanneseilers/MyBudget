@@ -34,6 +34,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.ButtonGroup;
 
 @SuppressWarnings("serial")
 public class ArticleDialog extends JDialog {
@@ -56,6 +57,7 @@ public class ArticleDialog extends JDialog {
 	 */
 	private boolean isSaved = false;
 	private Article article = null;
+	public final ButtonGroup rdbgrpIncomeOutgo = new ButtonGroup();
 	
 	/**
 	 * Create a dialog
@@ -146,9 +148,11 @@ public class ArticleDialog extends JDialog {
 		panArticleDialog.setLayout(new GridLayout(1, 0, 0, 0));
 
 		rdbtnOutgo = new JRadioButton("Ausgabe");
+		rdbgrpIncomeOutgo.add(rdbtnOutgo);
 		panArticleDialog.add(rdbtnOutgo);
 
 		rdbtnIncome = new JRadioButton("Einnahme");
+		rdbgrpIncomeOutgo.add(rdbtnIncome);
 		panArticleDialog.add(rdbtnIncome);
 		rdbtnIncome.setSelected(true);
 
@@ -227,7 +231,7 @@ public class ArticleDialog extends JDialog {
 		Category articleCategory = cmbCategory.getItemAt( cmbCategory.getSelectedIndex() );
 		
 		// check for income or outgo
-		if( rdbtnOutgo.isSelected() ){
+		if( rdbtnOutgo.isSelected() && articlePrice >= 0 ){
 			articlePrice *= -1.0;
 		}
 		

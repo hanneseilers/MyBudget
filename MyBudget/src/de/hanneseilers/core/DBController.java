@@ -127,8 +127,9 @@ public class DBController {
 	public boolean addCategory(Category category){
 		try {
 			
-			// First check if category is already there
-			String sql = "SELECT COUNT(*) AS num FROM categories WHERE name='" + category.getName() + "';";
+			// First check if category is already there (name of cid)
+			String sql = "SELECT COUNT(*) AS num FROM categories WHERE name='" + category.getName() +
+					"' OR cid=" + category.getCID() + ";";
 			if( exec(sql).getInt("num") == 0 ){	
 				
 				// Add category
@@ -146,17 +147,22 @@ public class DBController {
 				}
 
 			}
-			else{
-				
-				// set category vid
-				category.setCID( getCategory(category.getName()).getCID() );
-				
-			}
 			
 		} catch (SQLException e) {
 			logger.error("Can not add category " + category.getName() + ":" + e.getMessage());
 		}		
 		return false;
+	}
+	
+	/**
+	 * Deletes category from database
+	 * @param category
+	 * @return True if successfull
+	 */
+	public boolean deleteCategory(Category category){		
+		String sql = "DELETE FROM categories WHERE cid=" + Integer.toString(category.getCID())
+				+ " AND name='" + category.getName() + "';";
+		return exeUpdate(sql);		
 	}
 	
 	/**
@@ -212,6 +218,22 @@ public class DBController {
 	}
 	
 	/**
+	 * @return True if there are no categories in database
+	 */
+	public boolean isCategoriesEmpty(){		
+		try {
+			
+			String sql = "SELECT COUNT(*) AS num FROM categories";
+			return (exec(sql).getInt("num") == 0);
+			
+		} catch (SQLException e) {
+			logger.warn("Can execute sql statement: " + e.getMessage());
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * @return List of categories
 	 */
 	public List<Category> getCategories(){
@@ -219,7 +241,7 @@ public class DBController {
 		
 		try {
 		
-			String sql = "SELECT * FROM categories";
+			String sql = "SELECT * FROM categories ORDER BY name ASC";
 			ResultSet result = exec(sql);	
 			while( result.next() ){
 				Category category = new Category(false);
@@ -240,14 +262,16 @@ public class DBController {
 	/**
 	 * Updates category
 	 * @param category
+	 * @return True if successfull
 	 */
-	public void updateCategory(Category category){
+	public boolean updateCategory(Category category){
 		if( !addCategory(category) ){
 			String sql = "UPDATE categories SET name='"
 					+ category.getName() + "' WHERE cid="
 					+ Integer.toString(category.getCID()) + ";";
-			exeUpdate(sql);	
+			return exeUpdate(sql);	
 		}
+		return false;
 	}
 	
 
@@ -265,7 +289,7 @@ public class DBController {
 		
 		try{
 			
-			String sql = "SELECT * FROM articles " + condition + ";";
+			String sql = "SELECT * FROM articles " + condition + " ORDER BY timestamp DESC;";
 			
 			ResultSet result = exec(sql);
 			while( result.next() ){
@@ -341,8 +365,9 @@ public class DBController {
 	/**
 	 * Updates article and adds it if not already in database
 	 * @param article
+	 * @return True if successfull
 	 */
-	public void updateArticle(Article article){
+	public boolean updateArticle(Article article){
 		if( !addArticle(article) ){
 			String sql = "UPDATE articles SET article='"
 					+ article.getArticle() + "',"
@@ -350,8 +375,10 @@ public class DBController {
 					+ "timestamp=" + Long.toString(article.getDate().getTime()) + ","
 					+ "cid=" + Integer.toString(article.getCategory().getCID()) + ""
 					+ " WHERE aid="	+ Integer.toString(article.getAid()) + ";";
-			exeUpdate(sql);	
+			return exeUpdate(sql);	
 		}
+		
+		return false;
 	}
 
 	/**

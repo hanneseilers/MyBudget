@@ -1,31 +1,37 @@
 package de.hanneseilers.gui;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import de.hanneseilers.core.Article;
 import de.hanneseilers.core.Category;
 
-public class PageOutgo extends Page implements ActionListener {
+public class PageOutgo extends Page implements ActionListener, ChangeListener {
 
 	/**
 	 * Constructor
 	 */
 	public PageOutgo() {
+		frmMain.tabbedPane.addChangeListener(this);
 		frmMain.btnOutgoAdd.addActionListener(this);
 		frmMain.btnOutgoDelete.addActionListener(this);
 		frmMain.btnOutgoEdit.addActionListener(this);
+		frmMain.btnOutgoRefresh.addActionListener(this);
 		frmMain.btnOutgoFilter.addActionListener(this);
 		
 		updateArticlesList();
-		updateCategoryList();
+		updateCategoriesList();
 	}
 	
 	/**
 	 * Updates filters category list
 	 */
-	private void updateCategoryList(){
+	private synchronized void updateCategoriesList(){
 		frmMain.cmbOutgoFilterCategory.removeAllItems();
 		for( Category c : db.getCategories() ){
 			frmMain.cmbOutgoFilterCategory.addItem(c);
@@ -35,7 +41,7 @@ public class PageOutgo extends Page implements ActionListener {
 	/**
 	 * Updates article list without using filters
 	 */
-	private void updateArticlesList(){
+	private synchronized void updateArticlesList(){
 		updateArticlesList(false);
 	}
 	
@@ -51,14 +57,15 @@ public class PageOutgo extends Page implements ActionListener {
 			articles = db.getArticles( getFilter() );
 		}
 		else{
-			articles = db.getArticles( "WHERE price < 0.0 ORDER BY timestamp DESC" );
+			articles = db.getArticles( "WHERE price < 0.0" );
 		}
 		
 		// update gui list
 		frmMain.lstOutgoModel.clear();
 		for( Article a : articles ){
 			frmMain.lstOutgoModel.addElement(a);
-		}		
+		}
+		frmMain.lstOutgo.setSelectedIndex(0);
 		
 	}
 	
@@ -69,13 +76,12 @@ public class PageOutgo extends Page implements ActionListener {
 		if( frmMain.rdbtnOutgoFilterCategory.isSelected() ){
 			int index = frmMain.cmbOutgoFilterCategory.getSelectedIndex();
 			if( index >= 0 ){
-				return "WHERE price < 0.0 AND cid=" + frmMain.cmbOutgoFilterCategory.getItemAt(index).getCID()
-						+ " ORDER BY timestamp DESC";
+				return "WHERE price < 0.0 AND cid=" + frmMain.cmbOutgoFilterCategory.getItemAt(index).getCID();
 			}
 		}
 		else{
-			return "WHERE price < 0.0 AND article LIKE '%" + frmMain.txtOutgoFilter.getText() + "%'"
-					+ " ORDER BY timestamp DESC";
+			return "WHERE price < 0.0 AND LOWER(article) LIKE '%"
+					+ frmMain.txtOutgoFilter.getText().toLowerCase() + "%'";
 		}
 		
 		return "";
@@ -93,32 +99,49 @@ public class PageOutgo extends Page implements ActionListener {
 			// Add new article
 			ArticleDialog dialog = new ArticleDialog( ArticleDialogType.OUTGO_ADD, null );			
 			dialog.showDialog();
-			updateArticlesList();
 			
 		}
 		else if( source == frmMain.btnOutgoDelete ){
 			
 			// Delete article
-			db.deleteArticle( frmMain.lstOutgo.getSelectedValue() );
-			updateArticlesList();
+			if( !frmMain.lstOutgo.isSelectionEmpty() ){
+				frmMain.lstOutgo.getSelectedValue().delete();
+			}
 			
 		}
 		else if( source == frmMain.btnOutgoEdit ){
 			
 			// Edit article
-			ArticleDialog dialog = new ArticleDialog( ArticleDialogType.OUTGO_EDIT,
-					frmMain.lstOutgo.getSelectedValue() );
-			dialog.showDialog();
-			updateArticlesList();
+			if( !frmMain.lstOutgo.isSelectionEmpty() ){
+				ArticleDialog dialog = new ArticleDialog( ArticleDialogType.OUTGO_EDIT,
+						frmMain.lstOutgo.getSelectedValue() );
+				dialog.showDialog();
+			}
 			
 		}
 		else if( source == frmMain.btnOutgoFilter ){
 			
 			// Filter articles
 			updateArticlesList(true);
+			return;
 			
 		}
 		
+		// update articles list
+		updateArticlesList();
+		
+	}
+
+	/**
+	 * Called if tab changed
+	 */
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		Component source = frmMain.tabbedPane.getSelectedComponent();
+		if( source == frmMain.tabOutgo ){
+			updateCategoriesList();
+			updateArticlesList();
+		}	
 	}
 
 }

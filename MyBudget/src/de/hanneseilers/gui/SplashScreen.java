@@ -23,16 +23,26 @@ public class SplashScreen extends JFrame {
 	private JPanel contentPane;
 	private JLabel lblLogo;
 	private JLabel lblTitle;
-	private JLabel lblStatus;
+	
+	private static final int backgroundColor = 120;
+	private static final int backgroundAlpha = 200;
+	public JLabel lblStatus;
 
 	/**
 	 * Create the frame.
 	 */
 	public SplashScreen() {
+		
+		setIconImage(Toolkit.getDefaultToolkit().getImage(SplashScreen.class.getResource("/de/hanneseilers/gui/icon/MyBudget_64.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 400, 150);
+		setBounds(0, 0, 400, 170);
+		setUndecorated(true);
+		setBackground( new Color(backgroundColor, backgroundColor, backgroundColor, backgroundAlpha) );
+		
+		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setBackground( new Color(backgroundColor, backgroundColor, backgroundColor, 0) );
 		setContentPane(contentPane);
 		contentPane.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.RELATED_GAP_COLSPEC,
@@ -44,11 +54,11 @@ public class SplashScreen extends JFrame {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				RowSpec.decode("default:grow"),
 				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
+				RowSpec.decode("max(20dlu;default)"),
 				FormFactory.RELATED_GAP_ROWSPEC,}));
 		
 		lblTitle = new JLabel("MyBudget");
-		lblTitle.setForeground(new Color(51, 51, 51));
+		lblTitle.setForeground(Color.LIGHT_GRAY);
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTitle.setFont(new Font("Tahoma", Font.BOLD, 24));
 		contentPane.add(lblTitle, "2, 2, fill, top");
@@ -59,16 +69,20 @@ public class SplashScreen extends JFrame {
 		contentPane.add(lblLogo, "2, 4, fill, fill");
 		
 		lblStatus = new JLabel("Loading...");
-		lblStatus.setFont(new Font("Lucida Sans Typewriter", Font.BOLD, 16));
-		contentPane.add(lblStatus, "2, 6, fill, top");
+		lblStatus.setHorizontalAlignment(SwingConstants.CENTER);
+		lblStatus.setForeground(Color.LIGHT_GRAY);
+		lblStatus.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblStatus.setOpaque(true);
+		lblStatus.setBackground( new Color(backgroundColor, backgroundColor, backgroundColor, 255) );
+		contentPane.add(lblStatus, "2, 6, fill, fill");
 		
 		// set position to center of screen
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation( dim.width/2-getSize().width/2,
 				dim.height/2-getSize().height/2 );
-		
-		setUndecorated(true);
+
 		setVisible(true);
+		
 	}
 	
 	public void setStatus(String msg){

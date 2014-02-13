@@ -78,6 +78,14 @@ public class Category {
 	}
 	
 	/**
+	 * Deletes this category from database
+	 * @return True if successfull
+	 */
+	public boolean delete(){
+		return db.deleteCategory(this);
+	}
+	
+	/**
 	 * @return Category name
 	 */
 	public String toString(){

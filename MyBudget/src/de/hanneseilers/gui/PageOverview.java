@@ -1,0 +1,230 @@
+package de.hanneseilers.gui;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import de.hanneseilers.core.Article;
+import de.hanneseilers.core.Category;
+
+public class PageOverview extends Page implements ActionListener, ChangeListener {
+
+	private double income = 0;
+	private double outgo = 0;
+	
+	/**
+	 * Constructor
+	 */
+	public PageOverview() {
+		frmMain.tabbedPane.addChangeListener(this);
+		frmMain.btnOverviewFilter.addActionListener(this);
+		
+		updateCategoriesList();
+		updateArticlesList();		
+	}
+	
+	/**
+	 * Updates list of categories
+	 */
+	private synchronized void updateCategoriesList(){
+		frmMain.cmbOverviewCategory.removeAllItems();
+		
+		// add all category
+		Category category = new Category(false);
+		category.setCID(-2);
+		category.setName("> ALLE <");		
+		frmMain.cmbOverviewCategory.addItem( category );
+		
+		// add categories from database
+		for( Category c : db.getCategories() ){
+			frmMain.cmbOverviewCategory.addItem(c);
+		}
+	}
+	
+	/**
+	 * Updates list of articles
+	 */
+	private synchronized void updateArticlesList(){		
+		// reset list and income, outgo counter
+		frmMain.lstOverviewModel.clear();
+		income = 0;
+		outgo = 0;		
+		
+		for( Article a : db.getArticles(getFilter()) ){
+		
+			// calculate income and outgo
+			double price = a.getPrice();
+			if( price < 0 ){
+				outgo += price;
+			}
+			else{
+				income += price;
+			}
+			
+			// add article to list
+			frmMain.lstOverviewModel.addElement(a);
+			
+		}	
+		
+		// show income, outgo and balance
+		double total = income + outgo;
+		frmMain.lblOverviewTrend.setText( getTrend() );
+		frmMain.lblOverviewIncomeTotal.setText( Double.toString(income) );
+		frmMain.lblOverviewOutgoTotal.setText( Double.toString(outgo) );
+		frmMain.lblOverviewTotal.setText( Double.toString(total) );		
+		if( total < 0){
+			frmMain.lblOverviewTotal.setForeground( new Color(128, 0, 0) );
+		}
+		else if( total > 0 ){
+			frmMain.lblOverviewTotal.setForeground( new Color(0, 128, 0) );
+		}
+		else{
+			frmMain.lblOverviewTotal.setForeground( new Color(0, 0, 0) );
+		}
+	}
+	
+	/**
+	 * @return SQL filter statement
+	 */
+	private String getFilter(){
+		return getFilter(true);
+	}
+	
+	/**
+	 * @param useDays Set true to use days in filter statement
+	 * @return SQL filter statement
+	 */
+	private String getFilter(boolean useDays){
+		String filter = "WHERE";
+		boolean filterAppended = false;
+		
+		// collect filter data
+		Category category = null;
+		int index = frmMain.cmbOverviewCategory.getSelectedIndex();	
+		if( index >= 0 ){
+			category = frmMain.cmbOverviewCategory.getItemAt(index);
+		}
+		long days = Long.parseLong( frmMain.txtOverviewDays.getText() ) * Article.timestampDay;
+		String searchWord = frmMain.txtOverviewSearch.getText().trim();
+		
+		// edit sql filter statement
+		if( category != null && category.getCID() >= 0 ){
+			filter += " cid=" + category.getCID();
+			filterAppended = true;
+		}
+		
+		if( searchWord.length() > 0 ){
+			if( filterAppended )
+				filter += " AND";
+			filter += " LOWER(article) LIKE '%" + searchWord.toLowerCase() + "%'";
+			filterAppended = true;
+		}
+		
+		if( useDays && days > 0 ){
+			if( filterAppended )
+				filter += " AND";
+			long curDay = (System.currentTimeMillis()/Article.timestampDay) * Article.timestampDay;
+			filter += " timestamp>=" + Double.toString(curDay - days);
+			filterAppended = true;
+		}
+		
+		if( !filterAppended )
+			filter = null;
+		
+		return filter;
+	}
+	
+	/**
+	 * @return Trend string of data
+	 */
+	private String getTrend(){
+		String trend = "Kein Zeitraum verfübar!";
+		long days = Long.parseLong( frmMain.txtOverviewDays.getText() ) * Article.timestampDay;
+		
+		if( days > 0  ){
+			// calculate timezone
+			long lastDay1 = (System.currentTimeMillis()/Article.timestampDay) * Article.timestampDay - days;
+			long lastDay2 = lastDay1 - days;
+			
+			// get sql filter statement
+			String filter = getFilter(false);
+			if( filter == null ){
+				filter = " WHERE";
+			}
+			else{
+				filter += " AND";
+			}
+			filter += " timestamp>=" + Long.toString(lastDay2)
+					+ " AND timestamp<" + Long.toString(lastDay1);
+			
+			// get articles and reference articles
+			List<Article> articles = db.getArticles( getFilter() );
+			List<Article> articlesRef = db.getArticles( filter );
+			if( articles.size() > 0 ){				
+				if( articlesRef.size() > 0 ){
+					
+					// calculate total prices
+					double total = income + outgo;
+					double totalRef = 0;
+					for( Article aRef : articlesRef ){
+						totalRef += aRef.getPrice();
+					}
+					
+					// calculate trend
+					double balance = total - totalRef;
+					double percent = Math.round( Math.abs( ((balance/totalRef)/100)*100 ) );
+					if( total > totalRef ){
+						trend = String.format("Bilanzsteigerung um %.2f EUR (+%.2f%%).", balance, percent );
+					}
+					else if( total < totalRef ){
+						trend = String.format("Bilanzminderung um %.2f EUR (-%.2f%%).", balance, percent );
+					}
+					else{
+						trend = "Bilanz unverändert.";
+					}
+					
+				}
+				else{
+					trend = "Keine Daten im Referenzzeitraum!";
+				}
+			}
+			else{
+				trend = "Keine Daten im Zeitraum!";
+			}
+			
+		}
+		
+		return trend;
+	}
+
+	/**
+	 * Called if button clicked
+	 */
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		
+		Object source = e.getSource();
+		if( source == frmMain.btnOverviewFilter ){
+			updateArticlesList();			
+		}
+		
+	}
+
+	/**
+	 * Called if tab changed
+	 */
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		Component source = frmMain.tabbedPane.getSelectedComponent();
+		if( source == frmMain.tabOverview ){
+			updateCategoriesList();
+			updateArticlesList();
+		}
+	}
+	
+}

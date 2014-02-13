@@ -1,31 +1,37 @@
 package de.hanneseilers.gui;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import de.hanneseilers.core.Article;
 import de.hanneseilers.core.Category;
 
-public class PageIncome extends Page implements ActionListener {
+public class PageIncome extends Page implements ActionListener, ChangeListener {
 
 	/**
 	 * Constructor
 	 */
 	public PageIncome() {
+		frmMain.tabbedPane.addChangeListener(this);
 		frmMain.btnIncomeAdd.addActionListener(this);
 		frmMain.btnIncomeDelete.addActionListener(this);
 		frmMain.btnIncomeEdit.addActionListener(this);
+		frmMain.btnIncomeRefresh.addActionListener(this);
 		frmMain.btnIncomeFilter.addActionListener(this);
 		
 		updateArticlesList();
-		updateCategoryList();
+		updateCategoriesList();
 	}
 	
 	/**
 	 * Updates filters category list
 	 */
-	private void updateCategoryList(){
+	private synchronized void updateCategoriesList(){
 		frmMain.cmbIncomeFilterCategory.removeAllItems();
 		for( Category c : db.getCategories() ){
 			frmMain.cmbIncomeFilterCategory.addItem(c);
@@ -35,7 +41,7 @@ public class PageIncome extends Page implements ActionListener {
 	/**
 	 * Updates article list without using filters
 	 */
-	private void updateArticlesList(){
+	private synchronized void updateArticlesList(){
 		updateArticlesList(false);
 	}
 	
@@ -51,7 +57,7 @@ public class PageIncome extends Page implements ActionListener {
 			articles = db.getArticles( getFilter() );
 		}
 		else{
-			articles = db.getArticles( "WHERE price >= 0.0 ORDER BY timestamp DESC" );
+			articles = db.getArticles( "WHERE price >= 0.0" );
 		}
 		
 		// update gui list
@@ -59,6 +65,7 @@ public class PageIncome extends Page implements ActionListener {
 		for( Article a : articles ){
 			frmMain.lstIncomeModel.addElement(a);
 		}		
+		frmMain.lstIncome.setSelectedIndex(0);
 		
 	}
 	
@@ -69,13 +76,12 @@ public class PageIncome extends Page implements ActionListener {
 		if( frmMain.rdbtnIncomeFilterCategory.isSelected() ){
 			int index = frmMain.cmbIncomeFilterCategory.getSelectedIndex();
 			if( index >= 0 ){
-				return "WHERE price >= 0.0 AND cid=" + frmMain.cmbIncomeFilterCategory.getItemAt(index).getCID()
-						+ " ORDER BY timestamp DESC";
+				return "WHERE price >= 0.0 AND cid=" + frmMain.cmbIncomeFilterCategory.getItemAt(index).getCID();
 			}
 		}
 		else{
-			return "WHERE price >= 0.0 AND article LIKE '%" + frmMain.txtIncomeFilter.getText() + "%'"
-					+ " ORDER BY timestamp DESC";
+			return "WHERE price >= 0.0 AND LOWER(article) LIKE '%"
+					+ frmMain.txtIncomeFilter.getText().toLowerCase() + "%'";
 		}
 		
 		return "";
@@ -93,32 +99,50 @@ public class PageIncome extends Page implements ActionListener {
 			// Add new article
 			ArticleDialog dialog = new ArticleDialog( ArticleDialogType.INCOME_ADD, null );			
 			dialog.showDialog();
-			updateArticlesList();
 			
 		}
 		else if( source == frmMain.btnIncomeDelete ){
 			
 			// Delete article
-			db.deleteArticle( frmMain.lstIncome.getSelectedValue() );
-			updateArticlesList();
+			if( !frmMain.lstIncome.isSelectionEmpty() ){
+				frmMain.lstIncome.getSelectedValue().delete();
+			}
 			
 		}
 		else if( source == frmMain.btnIncomeEdit ){
 			
 			// Edit article
-			ArticleDialog dialog = new ArticleDialog( ArticleDialogType.INCOME_EDIT,
-					frmMain.lstIncome.getSelectedValue() );
+			if( !frmMain.lstIncome.isSelectionEmpty() ){
+				ArticleDialog dialog = new ArticleDialog( ArticleDialogType.INCOME_EDIT,
+						frmMain.lstIncome.getSelectedValue() );
 			dialog.showDialog();
-			updateArticlesList();
+			}
 			
 		}
 		else if( source == frmMain.btnIncomeFilter ){
 			
 			// Filter articles
 			updateArticlesList(true);
+			return;
 			
 		}
 		
+		// update article list
+		updateArticlesList();
+		
+	}
+
+	
+	/**
+	 * Called if tab changed
+	 */
+	@Override
+	public void stateChanged(ChangeEvent arg0) {
+		Component source = frmMain.tabbedPane.getSelectedComponent();
+		if( source == frmMain.tabIncome ){
+			updateCategoriesList();
+			updateArticlesList();
+		}		
 	}
 
 }

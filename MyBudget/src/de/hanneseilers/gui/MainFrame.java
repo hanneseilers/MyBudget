@@ -19,12 +19,12 @@ import java.awt.GridLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import javax.swing.SwingConstants;
 import javax.swing.JList;
 import java.awt.Font;
-import java.awt.Color;
 import javax.swing.ImageIcon;
 import javax.swing.JRadioButton;
 import javax.swing.ListSelectionModel;
@@ -64,7 +64,7 @@ public class MainFrame {
 	public JLabel lblOverview4;
 	public JLabel lblStichwort;
 	public JTextField txtOverviewSearch;
-	public JButton btnOverviewSearch;
+	public JButton btnOverviewFilter;
 	public JList<Article> lstOverviewArticles;
 	public JButton btnSettingsRemoveCategory;
 	public JLabel lblSettingsCatergory;
@@ -102,12 +102,16 @@ public class MainFrame {
 	public final ButtonGroup btngrpOutgoFilter = new ButtonGroup();
 	public JPanel panSettingsButtons;
 	public JLabel lblOverview5;
-	public JLabel lblTrend;
+	public JLabel lblOverviewTrend;
 	public JLabel lblOverview6;
 	public JLabel lblOverview7;
-	public JTextField txtOverview;
+	public JTextField txtOverviewDays;
 	public JLabel lblIncomeHeader;
 	public JLabel lbOutgoHeader;
+	public JButton btnIncomeRefresh;
+	public JButton btnOutgoRefresh;
+	public JLabel lblSettings1;
+	public JLabel lblSettingsApplicationVersion;
 
 	/**
 	 * Create the application.
@@ -130,7 +134,7 @@ public class MainFrame {
 	 */
 	private void initialize() {
 		frmMain = new JFrame();
-		frmMain.setIconImage(Toolkit.getDefaultToolkit().getImage(MainFrame.class.getResource("/de/hanneseilers/gui/icon/MyBudget_16.png")));
+		frmMain.setIconImage(Toolkit.getDefaultToolkit().getImage(MainFrame.class.getResource("/de/hanneseilers/gui/icon/MyBudget_64.png")));
 		frmMain.setTitle("MyBudget (C) 2013");
 		frmMain.setBounds(100, 100, 800, 600);
 		frmMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -167,12 +171,16 @@ public class MainFrame {
 		tabStart.add(panStartButtons, "3, 6, center, center");
 		panStartButtons.setLayout(new GridLayout(0, 1, 0, 10));
 		btnStartIncome = new JButton("Einnahmen");
+		btnStartIncome.setMnemonic('E');
 		panStartButtons.add(btnStartIncome);
 		btnStartOutgo = new JButton("Ausgaben");
+		btnStartOutgo.setMnemonic('A');
 		panStartButtons.add(btnStartOutgo);
 		btnStartOverview = new JButton("\u00DCbersicht");
+		btnStartOverview.setMnemonic('Ü');
 		panStartButtons.add(btnStartOverview);
 		btnStartSettings = new JButton("Einstellungen");
+		btnStartSettings.setMnemonic('s');
 		panStartButtons.add(btnStartSettings);
 		lblStartFooter = new JLabel("by hannes eilers (C) 2013 - www.hanneseilers.de | Icon from Visual Pharm http://icons8.com/ (CC BY-ND 3.0)");
 		lblStartFooter.setHorizontalAlignment(SwingConstants.LEFT);
@@ -204,20 +212,27 @@ public class MainFrame {
 		lstIncome = new JList<Article>(lstIncomeModel);
 		lstIncome.setFont(new Font("Lucida Sans Typewriter", Font.BOLD, 12));
 		lstIncome.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tabIncome.add(lstIncome, "2, 4, fill, fill");
+		tabIncome.add( new JScrollPane(lstIncome), "2, 4, fill, fill");
 		
 		panIncomeButtons = new JPanel();
 		tabIncome.add(panIncomeButtons, "4, 4, center, top");
 		panIncomeButtons.setLayout(new GridLayout(0, 1, 0, 2));
 		
 		btnIncomeAdd = new JButton("Artikel hinzufügen");
+		btnIncomeAdd.setMnemonic('h');
 		panIncomeButtons.add(btnIncomeAdd);
 		
 		btnIncomeDelete = new JButton("Artikel löschen");
+		btnIncomeDelete.setMnemonic('l');
 		panIncomeButtons.add(btnIncomeDelete);
 		
 		btnIncomeEdit = new JButton("Artikel bearbeiten");
+		btnIncomeEdit.setMnemonic('b');
 		panIncomeButtons.add(btnIncomeEdit);
+		
+		btnIncomeRefresh = new JButton("Liste aktualisieren");
+		btnIncomeRefresh.setMnemonic('a');
+		panIncomeButtons.add(btnIncomeRefresh);
 		
 		panIncomeFilter = new JPanel();
 		tabIncome.add(panIncomeFilter, "2, 6, 3, 1, fill, fill");
@@ -252,6 +267,7 @@ public class MainFrame {
 		txtIncomeFilter.setColumns(10);
 		
 		btnIncomeFilter = new JButton("Filtern");
+		btnIncomeFilter.setMnemonic('F');
 		panIncomeFilter.add(btnIncomeFilter, "10, 1");
 		
 		tabOutgo = new JPanel();
@@ -280,20 +296,27 @@ public class MainFrame {
 		lstOutgo = new JList<Article>(lstOutgoModel);
 		lstOutgo.setFont(new Font("Lucida Sans Typewriter", Font.BOLD, 12));
 		lstOutgo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tabOutgo.add(lstOutgo, "2, 4, fill, fill");
+		tabOutgo.add(new JScrollPane(lstOutgo), "2, 4, fill, fill");
 		
 		panOutgoButtons = new JPanel();
 		tabOutgo.add(panOutgoButtons, "4, 4, center, top");
 		panOutgoButtons.setLayout(new GridLayout(0, 1, 0, 2));
 		
 		btnOutgoAdd = new JButton("Artikel hinzufügen");
+		btnOutgoAdd.setMnemonic('h');
 		panOutgoButtons.add(btnOutgoAdd);
 		
 		btnOutgoDelete = new JButton("Artikel löschen");
+		btnOutgoDelete.setMnemonic('l');
 		panOutgoButtons.add(btnOutgoDelete);
 		
 		btnOutgoEdit = new JButton("Artikel bearbeiten");
+		btnOutgoEdit.setMnemonic('b');
 		panOutgoButtons.add(btnOutgoEdit);
+		
+		btnOutgoRefresh = new JButton("Liste aktualisieren");
+		btnOutgoRefresh.setMnemonic('a');
+		panOutgoButtons.add(btnOutgoRefresh);
 		
 		panOutgoFilter = new JPanel();
 		tabOutgo.add(panOutgoFilter, "2, 6, 3, 1, fill, fill");
@@ -328,6 +351,7 @@ public class MainFrame {
 		txtOutgoFilter.setColumns(10);
 		
 		btnOutgoFilter = new JButton("Filtern");
+		btnOutgoFilter.setMnemonic('F');
 		panOutgoFilter.add(btnOutgoFilter, "10, 1");
 		
 		
@@ -372,20 +396,21 @@ public class MainFrame {
 		txtOverviewSearch = new JTextField();
 		tabOverview.add(txtOverviewSearch, "4, 4, 3, 1, fill, default");
 		txtOverviewSearch.setColumns(10);
-		btnOverviewSearch = new JButton("Suche");
-		tabOverview.add(btnOverviewSearch, "8, 4");
 		
 		lblOverview6 = new JLabel("Zeitraum:");
 		tabOverview.add(lblOverview6, "2, 6, right, default");
 		
-		txtOverview = new JTextField();
-		txtOverview.setHorizontalAlignment(SwingConstants.RIGHT);
-		txtOverview.setText("0");
-		tabOverview.add(txtOverview, "4, 6, fill, top");
-		txtOverview.setColumns(10);
+		txtOverviewDays = new JTextField();
+		txtOverviewDays.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtOverviewDays.setText("0");
+		tabOverview.add(txtOverviewDays, "4, 6, fill, center");
+		txtOverviewDays.setColumns(10);
 		
-		lblOverview7 = new JLabel("Tage");
+		lblOverview7 = new JLabel("letzten Tage");
 		tabOverview.add(lblOverview7, "6, 6");
+		btnOverviewFilter = new JButton("Filtern");
+		btnOverviewFilter.setMnemonic('F');
+		tabOverview.add(btnOverviewFilter, "8, 6");
 		lblOverview1 = new JLabel("Einnahmen:");
 		lblOverview1.setHorizontalAlignment(SwingConstants.RIGHT);
 		tabOverview.add(lblOverview1, "2, 8, 3, 1");
@@ -403,7 +428,6 @@ public class MainFrame {
 		lblOverview3.setFont(new Font("Tahoma", Font.BOLD, 11));
 		tabOverview.add(lblOverview3, "2, 12, 3, 1");
 		lblOverviewTotal = new JLabel("0,00 EUR");
-		lblOverviewTotal.setForeground(new Color(0, 128, 0));
 		lblOverviewTotal.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblOverviewTotal.setHorizontalAlignment(SwingConstants.RIGHT);
 		tabOverview.add(lblOverviewTotal, "6, 12");
@@ -411,14 +435,15 @@ public class MainFrame {
 		lblOverview5 = new JLabel("Trend:");
 		tabOverview.add(lblOverview5, "8, 12, right, default");
 		
-		lblTrend = new JLabel("Nicht genug Daten");
-		tabOverview.add(lblTrend, "10, 12, left, default");
+		lblOverviewTrend = new JLabel("Nicht genug Daten");
+		tabOverview.add(lblOverviewTrend, "10, 12, left, default");
 		
 		lstOverviewModel = new DefaultListModel<Article>();
 		lstOverviewArticles = new JList<Article>(lstOverviewModel);
+		lstOverviewArticles.setEnabled(false);
 		lstOverviewArticles.setFont(new Font("Lucida Sans Typewriter", Font.BOLD, 12));
 		lstOverviewArticles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tabOverview.add(lstOverviewArticles, "2, 14, 9, 1, fill, fill");
+		tabOverview.add(new JScrollPane(lstOverviewArticles), "2, 14, 9, 1, fill, fill");
 		
 		tabSettings = new JPanel();
 		tabbedPane.addTab("Einstellungen", null, tabSettings, null);
@@ -437,7 +462,9 @@ public class MainFrame {
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,}));
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,}));
 		lblSettingsCatergory = new JLabel("Kategorien:");
 		lblSettingsCatergory.setHorizontalAlignment(SwingConstants.RIGHT);
 		tabSettings.add(lblSettingsCatergory, "2, 2, right, default");
@@ -453,11 +480,21 @@ public class MainFrame {
 		panSettingsButtons = new JPanel();
 		tabSettings.add(panSettingsButtons, "4, 6, left, top");
 		btnSettingsCategoryAdd = new JButton("Kategorie hinzuf\u00FCgen");
+		btnSettingsCategoryAdd.setMnemonic('h');
 		panSettingsButtons.add(btnSettingsCategoryAdd);
 		btnSettingsRemoveCategory = new JButton("Kategorie l\u00F6schen");
+		btnSettingsRemoveCategory.setMnemonic('l');
 		panSettingsButtons.add(btnSettingsRemoveCategory);
 		btnSettingsCategoryRename = new JButton("Kategorie umbennen");
+		btnSettingsCategoryRename.setMnemonic('u');
 		panSettingsButtons.add(btnSettingsCategoryRename);
+		
+		lblSettings1 = new JLabel("Programmversion:");
+		lblSettings1.setHorizontalAlignment(SwingConstants.RIGHT);
+		tabSettings.add(lblSettings1, "2, 9");
+		
+		lblSettingsApplicationVersion = new JLabel("0");
+		tabSettings.add(lblSettingsApplicationVersion, "4, 9");
 	}
 	
 }
