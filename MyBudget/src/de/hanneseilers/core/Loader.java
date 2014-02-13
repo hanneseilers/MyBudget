@@ -1,10 +1,8 @@
 package de.hanneseilers.core;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -53,10 +51,10 @@ public class Loader {
 			
 			// update available > download new version
 			logger.info("Downloading update from " + updateURL);
-			downloadUpload(updateURL);
+			downloadApplication(updateURL);
 			
 			// restart application
-//			restartApplication();
+			restartApplication();
 			
 		}
 		
@@ -153,6 +151,8 @@ public class Loader {
 			URL appUpdateURL = new URL( updateURL );
 			URLConnection con = appUpdateURL.openConnection();
 			BufferedReader in = new BufferedReader( new InputStreamReader(con.getInputStream()) );
+			
+			// TODO: Checking for update and getting download url
 			System.out.println("update site: " + in.readLine());
 		
 		} catch (MalformedURLException e1) {
@@ -170,9 +170,13 @@ public class Loader {
 	 * @param url
 	 * @return True if program successfull replaced
 	 */
-	public boolean downloadUpload(URL url){
+	public boolean downloadApplication(URL url){
+		// get paths
 		String pathToReplace = Loader.class.getProtectionDomain().getCodeSource().getLocation().toString();
-		System.out.println(pathToReplace);
+		String pathToTemp = Loader.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+		
+		// TODO: Downbloading new file and replaceing old file.
+		
 		return false;
 	}
 	
