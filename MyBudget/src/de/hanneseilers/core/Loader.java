@@ -213,11 +213,12 @@ public class Loader {
 				+ Integer.toString( config.getInt(ConfigurationValues.APP_UPDATE_REVISION.getKey())+1 ));
 		
 		/*
-		 * Reset revision
+		 * Reset revision and app version
 		 * Needs do be done before download new program file because
 		 * after download no classes could be found by apacho commons configuration.
 		 */
 		config.clearProperty( ConfigurationValues.APP_UPDATE_REVISION.getKey() );
+		config.clearProperty( ConfigurationValues.APP_VERSION.getKey() );
 		
 		// Download file
 		for( URL url : urlList ){
