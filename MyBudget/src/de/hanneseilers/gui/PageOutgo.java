@@ -169,10 +169,10 @@ public class PageOutgo extends Page implements ActionListener, ChangeListener, M
 		// check for double klick
 		if( e.getClickCount() > 1 ){
 			editSelectedArticle();
-		}
-		
-		// update articles list
-		updateArticlesList();
+			
+			// update articles list
+			updateArticlesList();
+		}		
 	}
 
 	@Override

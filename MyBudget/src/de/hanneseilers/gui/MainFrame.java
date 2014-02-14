@@ -210,7 +210,7 @@ public class MainFrame {
 		
 		lstIncomeModel = new DefaultListModel<Article>();
 		lstIncome = new JList<Article>(lstIncomeModel);
-		lstIncome.setFont(new Font("Lucida Sans Typewriter", Font.BOLD, 12));
+		lstIncome.setFont(new Font("Monospaced", Font.BOLD, 12));
 		lstIncome.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tabIncome.add( new JScrollPane(lstIncome), "2, 4, fill, fill");
 		
@@ -294,7 +294,7 @@ public class MainFrame {
 		
 		lstOutgoModel = new DefaultListModel<Article>();
 		lstOutgo = new JList<Article>(lstOutgoModel);
-		lstOutgo.setFont(new Font("Lucida Sans Typewriter", Font.BOLD, 12));
+		lstOutgo.setFont(new Font("Monospaced", Font.BOLD, 12));
 		lstOutgo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tabOutgo.add(new JScrollPane(lstOutgo), "2, 4, fill, fill");
 		
@@ -441,9 +441,9 @@ public class MainFrame {
 		lstOverviewModel = new DefaultListModel<Article>();
 		lstOverviewArticles = new JList<Article>(lstOverviewModel);
 		lstOverviewArticles.setEnabled(false);
-		lstOverviewArticles.setFont(new Font("Lucida Sans Typewriter", Font.BOLD, 12));
+		lstOverviewArticles.setFont(new Font("Monospaced", Font.BOLD, 12));
 		lstOverviewArticles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tabOverview.add(new JScrollPane(lstOverviewArticles), "2, 14, 9, 1, fill, fill");
+		tabOverview.add(new JScrollPane( lstOverviewArticles ), "2, 14, 9, 1, fill, fill");
 		
 		tabSettings = new JPanel();
 		tabbedPane.addTab("Einstellungen", null, tabSettings, null);
