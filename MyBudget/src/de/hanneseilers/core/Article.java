@@ -15,7 +15,7 @@ public class Article {
 	private boolean synchronizing = true;
 	
 	public static final int articleNameLength = Loader.config.getInt( ConfigurationValues.ARTICLE_NAME_LENGTH.getKey() );
-	public static final int timestampDay = Loader.config.getInt( ConfigurationValues.TIMESTAMP_DAYS.getKey() );
+	public static final int timestampDay = Loader.config.getInt( ConfigurationValues.ARTICLE_TIMESTAMP_DAYS.getKey() );
 	
 	/**
 	 * Constructor

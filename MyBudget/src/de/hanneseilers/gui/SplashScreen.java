@@ -26,7 +26,7 @@ public class SplashScreen extends JFrame {
 	
 	private static final int backgroundColor = 120;
 	private static final int backgroundAlpha = 200;
-	public JLabel lblStatus;
+	private JLabel lblStatus;
 
 	/**
 	 * Create the frame.

@@ -21,7 +21,7 @@ public class PageSettings extends Page implements ActionListener, ChangeListener
 		frmMain.btnSettingsCategoryRename.addActionListener(this);
 		frmMain.btnSettingsRemoveCategory.addActionListener(this);
 		
-		String appVersion = (String) Loader.config.getProperty( ConfigurationValues.APPLICATION_VERSION.getKey() );
+		String appVersion = (String) Loader.config.getProperty( ConfigurationValues.APP_VERSION.getKey() );
 		frmMain.lblSettingsApplicationVersion.setText(appVersion);
 		
 		updateCategoriesList();

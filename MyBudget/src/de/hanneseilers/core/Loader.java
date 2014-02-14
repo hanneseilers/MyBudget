@@ -2,13 +2,17 @@ package de.hanneseilers.core;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -45,16 +49,22 @@ public class Loader {
 		loadConfiguration();
 		
 		// check for online update
-		splash.setStatus("Checking for new version...");
-		URL updateURL = checkForUpdate();
-		if( updateURL != null ){
+		splash.setStatus("Checking for updates...");
+		List<URL> updateURLs = checkForUpdate();
+		if( updateURLs.size() > 0){
 			
-			// update available > download new version
-			logger.info("Downloading update from " + updateURL);
-			downloadApplication(updateURL);
+			// update available > download new revision
+			splash.setStatus("Downloading updates...");
+			if( downloadApplicationUpdates(updateURLs) ){				
+				logger.info("Update successfull.");
+			}
+			else{
+				logger.error("Update failed!");				
+			}
 			
 			// restart application
 			restartApplication();
+			
 			
 		}
 		
@@ -102,14 +112,14 @@ public class Loader {
 		}
 		
 		if( !checkConfig() ){
-			System.out.println("init config");
 			initConfig();
 		}
 		
 	}
 	
 	/**
-	 * Creats configuration keys inside empty config
+	 * Creates default configuration values
+	 * @param reset If true all default values are reseted
 	 */
 	private void initConfig(){
 		if( config != null ){
@@ -141,19 +151,43 @@ public class Loader {
 	/**
 	 * @return URL of update site or null if no update
 	 */
-	public URL checkForUpdate(){
-		URL downloadURL = null;
+	public List<URL> checkForUpdate(){
+		List<URL> downloadURL = new ArrayList<URL>();
 		String updateURL = "";
 		
 		try {
 			
-			updateURL = (String) config.getProperty( ConfigurationValues.APLLICATION_UPDATE_SYSTEM_URL.getKey() );
+			updateURL = config.getString( ConfigurationValues.APP_UPDATE_URL.getKey() );
+			updateURL += "?app=" + config.getString( ConfigurationValues.APP_UPDATE_NAME.getKey() );
 			URL appUpdateURL = new URL( updateURL );
 			URLConnection con = appUpdateURL.openConnection();
 			BufferedReader in = new BufferedReader( new InputStreamReader(con.getInputStream()) );
 			
-			// TODO: Checking for update and getting download url
-			System.out.println("update site: " + in.readLine());
+			// get lastest version of application
+			String latestVersion = in.readLine();
+			in.close();
+			int appVersion = config.getInt( ConfigurationValues.APP_UPDATE_REVISION.getKey() );
+			
+			if( !latestVersion.equals("err")
+					&& Integer.parseInt(latestVersion) > appVersion ){
+				
+				// get files to download
+				appVersion++;
+				updateURL += "&v=" + Integer.toString(appVersion);
+				appUpdateURL = new URL( updateURL );
+				con = appUpdateURL.openConnection();
+				in = new BufferedReader( new InputStreamReader(con.getInputStream()) );
+				String response = in.readLine().trim();
+				
+				// extract files to download and create download urls
+				if( response != null && response.length() > 0  ){
+					for( String url : response.split(";") ){
+						url = config.getString( ConfigurationValues.APP_UPDATE_URL.getKey() ) + url;
+						downloadURL.add( new URL(url) );
+					}
+				}
+				
+			}
 		
 		} catch (MalformedURLException e1) {
 			logger.warn("Incorrect update site url " + updateURL);
@@ -165,19 +199,46 @@ public class Loader {
 	}
 	
 	/**
-	 * Downloads new program file version from url
-	 * and replaced this file version
-	 * @param url
+	 * Downloads new program files from url list
+	 * @param urlList
 	 * @return True if program successfull replaced
 	 */
-	public boolean downloadApplication(URL url){
+	public boolean downloadApplicationUpdates(List<URL> urlList){
 		// get paths
-		String pathToReplace = Loader.class.getProtectionDomain().getCodeSource().getLocation().toString();
-		String pathToTemp = Loader.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+		String pathToReplace = Loader.class.getProtectionDomain().getCodeSource().getLocation().toExternalForm();
+		pathToReplace = pathToReplace.substring(0, pathToReplace.lastIndexOf("/")) + "/";
+		pathToReplace = pathToReplace.replace("file:/", "");
 		
-		// TODO: Downbloading new file and replaceing old file.
+		logger.info("Updating to revision "
+				+ Integer.toString( config.getInt(ConfigurationValues.APP_UPDATE_REVISION.getKey())+1 ));
 		
-		return false;
+		/*
+		 * Reset revision
+		 * Needs do be done before download new program file because
+		 * after download no classes could be found by apacho commons configuration.
+		 */
+		config.clearProperty( ConfigurationValues.APP_UPDATE_REVISION.getKey() );
+		
+		// Download file
+		for( URL url : urlList ){
+			
+			String filename = url.toExternalForm();
+			filename = filename.substring( filename.lastIndexOf("/")+1 );
+			
+			try {
+
+				ReadableByteChannel rbc = Channels.newChannel( url.openStream() );			
+				FileOutputStream fos = new FileOutputStream( pathToReplace + filename );
+				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+				fos.close();
+				
+			} catch (IOException e) {
+				logger.error("Can not replace " + pathToReplace + filename);
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -201,6 +262,7 @@ public class Loader {
 			command.add(currentJar.getPath());
 		
 			final ProcessBuilder builder = new ProcessBuilder(command);
+			logger.debug("Restarting application");
 			builder.start();
 			
 		} catch (URISyntaxException e) {
