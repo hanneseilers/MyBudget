@@ -39,7 +39,7 @@ public class Article {
 	public Article(String article, double price){
 		setArticle(article);
 		setPrice(price);
-		setDate( new Date( (System.currentTimeMillis() / timestampDay) * timestampDay) );
+		setDate( new Date( System.currentTimeMillis()) );
 	}
 	
 	/**
@@ -143,8 +143,7 @@ public class Article {
 	/**
 	 * @param date the date to set
 	 */
-	public void setDate(Date date) {
-		date.setTime( (date.getTime() / timestampDay) * timestampDay );
+	public void setDate(Date date) {		
 		this.date = date;
 		update();
 	}
@@ -203,7 +202,7 @@ public class Article {
 	 * @return String representation of article
 	 */
 	public String toString(){
-		String ret = String.format( "%s %-" + articleNameLength + "s %3s %9.2f EUR",
+		String ret = String.format( "%s %-" + Integer.toString(articleNameLength) + "s %3s %9.2f EUR",
 				(new SimpleDateFormat("dd.MM.yyyy")).format(date), article, " ", price );
 		return  ret;
 	}

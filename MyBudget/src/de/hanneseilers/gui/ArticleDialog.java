@@ -84,7 +84,7 @@ public class ArticleDialog extends JDialog {
 		if( aArticle != null ){
 			article = aArticle;
 			articleName = article.getArticle();
-			articlePrice = Double.toString(article.getPrice());
+			articlePrice = String.format( "%.2f", (article.getPrice()) );
 			articleDate = article.getDate();
 			
 		}
@@ -232,6 +232,9 @@ public class ArticleDialog extends JDialog {
 		
 		// check for income or outgo
 		if( rdbtnOutgo.isSelected() && articlePrice >= 0 ){
+			articlePrice *= -1.0;
+		}
+		else if( rdbtnIncome.isSelected() && articlePrice < 0 ){
 			articlePrice *= -1.0;
 		}
 		

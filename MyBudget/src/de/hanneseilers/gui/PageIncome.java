@@ -3,6 +3,10 @@ package de.hanneseilers.gui;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.List;
 
 import javax.swing.event.ChangeEvent;
@@ -11,7 +15,7 @@ import javax.swing.event.ChangeListener;
 import de.hanneseilers.core.Article;
 import de.hanneseilers.core.Category;
 
-public class PageIncome extends Page implements ActionListener, ChangeListener {
+public class PageIncome extends Page implements ActionListener, ChangeListener, MouseListener, KeyListener {
 
 	/**
 	 * Constructor
@@ -23,6 +27,8 @@ public class PageIncome extends Page implements ActionListener, ChangeListener {
 		frmMain.btnIncomeEdit.addActionListener(this);
 		frmMain.btnIncomeRefresh.addActionListener(this);
 		frmMain.btnIncomeFilter.addActionListener(this);
+		frmMain.lstIncome.addMouseListener(this);
+		frmMain.lstIncome.addKeyListener(this);
 		
 		updateArticlesList();
 		updateCategoriesList();
@@ -104,19 +110,13 @@ public class PageIncome extends Page implements ActionListener, ChangeListener {
 		else if( source == frmMain.btnIncomeDelete ){
 			
 			// Delete article
-			if( !frmMain.lstIncome.isSelectionEmpty() ){
-				frmMain.lstIncome.getSelectedValue().delete();
-			}
+			deleteSelectedArticle();
 			
 		}
 		else if( source == frmMain.btnIncomeEdit ){
 			
 			// Edit article
-			if( !frmMain.lstIncome.isSelectionEmpty() ){
-				ArticleDialog dialog = new ArticleDialog( ArticleDialogType.INCOME_EDIT,
-						frmMain.lstIncome.getSelectedValue() );
-			dialog.showDialog();
-			}
+			editSelectedArticle();
 			
 		}
 		else if( source == frmMain.btnIncomeFilter ){
@@ -131,6 +131,26 @@ public class PageIncome extends Page implements ActionListener, ChangeListener {
 		updateArticlesList();
 		
 	}
+	
+	/**
+	 * Deletes selected article
+	 */
+	private void deleteSelectedArticle(){
+		if( !frmMain.lstIncome.isSelectionEmpty() ){
+			frmMain.lstIncome.getSelectedValue().delete();
+		}
+	}
+	
+	/**
+	 * Edits selected article
+	 */
+	private void editSelectedArticle(){
+		if( !frmMain.lstIncome.isSelectionEmpty() ){
+			ArticleDialog dialog = new ArticleDialog( ArticleDialogType.INCOME_EDIT,
+					frmMain.lstIncome.getSelectedValue() );
+		dialog.showDialog();
+		}
+	}
 
 	
 	/**
@@ -144,5 +164,44 @@ public class PageIncome extends Page implements ActionListener, ChangeListener {
 			updateArticlesList();
 		}		
 	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// check for double klick
+		if( e.getClickCount() > 1 ){
+			editSelectedArticle();
+		}
+		
+		// update articles list
+		updateArticlesList();
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {}
+
+	@Override
+	public void mouseExited(MouseEvent e) {}
+
+	@Override
+	public void mousePressed(MouseEvent e) {}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {}
+
+	@Override
+	public void keyPressed(KeyEvent e) {}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		if( e.getKeyCode() == KeyEvent.VK_DELETE ){
+			deleteSelectedArticle();
+		}
+		
+		// update articles list
+		updateArticlesList();
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {}
 
 }

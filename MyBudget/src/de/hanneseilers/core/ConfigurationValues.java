@@ -7,8 +7,8 @@ package de.hanneseilers.core;
  */
 public enum ConfigurationValues {
 
-	APP_VERSION ("app.version", "1.0"),
-	APP_UPDATE_REVISION ("app.update.revision", 1),
+	APP_VERSION ("app.version", "1.0.1-alpha"),
+	APP_UPDATE_REVISION ("app.update.revision", 2),
 	APP_UPDATE_NAME ("app.update.name", "mybudget"),
 	APP_UPDATE_URL ("app.update.url", "http://www.private-factory.de/appupdate/"),
 	

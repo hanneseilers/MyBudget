@@ -74,9 +74,9 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 		// show income, outgo and balance
 		double total = income + outgo;
 		frmMain.lblOverviewTrend.setText( getTrend() );
-		frmMain.lblOverviewIncomeTotal.setText( Double.toString(income) );
-		frmMain.lblOverviewOutgoTotal.setText( Double.toString(outgo) );
-		frmMain.lblOverviewTotal.setText( Double.toString(total) );		
+		frmMain.lblOverviewIncomeTotal.setText( String.format("%.2f EUR", income) );
+		frmMain.lblOverviewOutgoTotal.setText(String.format("%.2f EUR", outgo) );
+		frmMain.lblOverviewTotal.setText( String.format("%.2f EUR", total) );		
 		if( total < 0){
 			frmMain.lblOverviewTotal.setForeground( new Color(128, 0, 0) );
 		}
