@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -35,6 +36,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.ButtonGroup;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 @SuppressWarnings("serial")
 public class ArticleDialog extends JDialog {
@@ -135,6 +138,17 @@ public class ArticleDialog extends JDialog {
 		contentPanel.add(lblPrice, "2, 6, right, default");
 
 		txtPrice = new JTextField();
+		txtPrice.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				SwingUtilities.invokeLater( new Runnable() {					
+					@Override
+					public void run() {
+						txtPrice.selectAll();						
+					}
+				} );
+			}
+		});
 		txtPrice.setHorizontalAlignment(SwingConstants.RIGHT);
 		contentPanel.add(txtPrice, "4, 6, fill, default");
 		txtPrice.setColumns(10);
