@@ -31,16 +31,49 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>
-<a name="was-ist-mybudget" class="anchor" href="#was-ist-mybudget"><span class="octicon octicon-link"></span></a>Was ist MyBudget?</h3>
+        <h2>
+<a name="was-ist-mybudget" class="anchor" href="#was-ist-mybudget"><span class="octicon octicon-link"></span></a>Was ist MyBudget?</h2>
 
 <p>MyBudget ist eine simple Software zum Verwalten von Haushaltseinnahmen und - ausgaben.
 MyBudget ermöglicht dir den Überblick über deine Finanzen zu behalten und zu verfolgen, wofür du dein Geld ausgiebst.</p>
 
-<h3>
-<a name="was-kann-mybudget" class="anchor" href="#was-kann-mybudget"><span class="octicon octicon-link"></span></a>Was kann MyBudget?</h3>
+<h2>
+<a name="was-kann-mybudget" class="anchor" href="#was-kann-mybudget"><span class="octicon octicon-link"></span></a>Was kann MyBudget?</h2>
 
 <p>MyBudget kann Einnahmen und Ausgaben beliebiger Kategorien wie z.B. Essen, Getränke, Sportverein, Auto, etc. erfassen und sortieren. Du kannst mit MyBudget dein Kaufverhalten analysieren und dir anzeigen lassen, wie sich deine Ausgaben in einzelnen Kategorien entwickeln. Darüber hinaus kannst du in der MyBudget-Datenbank auch nach Jahren noch gezielt nach bestimmten Einnahmen und Ausgaben suchen. So findest du z.B. heraus, wann du deinen DVD-Player gekauft hast.</p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>MyBudget muss nicht installiert werden. Es reicht die Datei <em>MyBudget.jar</em> zu starten.
+Dies geht entweder über eine Doppelklick auf ide Datei oder über die Komandozeile via 
+    java -jar MyBudget.jar</p>
+
+<p>MyBudget legt beim ersten Start zusätzlich benötigte Dateien automatisch an.</p>
+
+<h3>
+<a name="systemvorraussetzungen" class="anchor" href="#systemvorraussetzungen"><span class="octicon octicon-link"></span></a>Systemvorraussetzungen</h3>
+
+<p>Zum Ausführen von myBudget wird Java benötigt. Das Java RUntime Enviroment (JRE) kann von der Java-Website herunter <a href="http://www.java.com">www.java.com</a> heruntergeladen werden.</p>
+
+<h3>
+<a name="mybudget-dateien" class="anchor" href="#mybudget-dateien"><span class="octicon octicon-link"></span></a>MyBudget Dateien</h3>
+
+<p>MyBudget speichert Fehlermeldungen in Log-Dateien im unterverzeichnis <em>log</em>.
+Die Datenbank befindet sich in der Datei <em>mybudget.db</em>. Die Datenbank kann beliebig portiert werden.
+Beim Start von MyBudget wird überprüft ob die Datenbank vorhanden ist und diese ggf. neu erstellt. Um die Datenbank komplett zu löschen genügt es die Datei <em>mybudget.db</em> zu löschen.
+Einstellungen von MyBudget werden in der Datei <em>mybudget.properties</em> gespeichert. Diese sollte in der Regel nicht verändert werden!</p>
+
+<h2>
+<a name="update" class="anchor" href="#update"><span class="octicon octicon-link"></span></a>Update</h2>
+
+<p>MyBudget prüft beim Start ob eine neue Programmversion Verfügbar ist und läd diese automatisch herunter.
+Die Daten in der Datenbank gehen dabie nicht verloren.</p>
+
+<h2>
+<a name="fehlerbehung" class="anchor" href="#fehlerbehung"><span class="octicon octicon-link"></span></a>Fehlerbehung</h2>
+
+<p>MyBudget befindet sich zur Zeit noch im Feldversuch. Sollten Probleme auftreten, wenden Sie sich <a href="mailto:mail@private-factory.de">mail@private-factory.de</a>. Geben Sie bitte eine möglichst detaillierte Beschreibung des Fehlers an und senden Sie die Log-Dateien aus dem Ordner <em>log</em> für den entsprechenden Tag, an dem der Fehler aufgetreten ist, sowie die Dateien <em>mybudget.db</em> und <em>mybudget.properties</em> mit.</p>
       </section>
     </div>
 
