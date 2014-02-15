@@ -289,7 +289,7 @@ public class DBController {
 		
 		try{
 			
-			String sql = "SELECT * FROM articles " + condition + " ORDER BY timestamp DESC;";
+			String sql = "SELECT * FROM articles " + condition + " ORDER BY timestamp DESC, aid DESC;";
 			
 			ResultSet result = exec(sql);
 			while( result.next() ){

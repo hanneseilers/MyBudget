@@ -20,7 +20,9 @@ public class Article {
 	/**
 	 * Constructor
 	 */
-	public Article(){}
+	public Article(){
+		setDate( new Date(convertTimestamp(System.currentTimeMillis())) );
+	}
 	
 	/**
 	 * Constructor
@@ -37,9 +39,9 @@ public class Article {
 	 * @param price
 	 */
 	public Article(String article, double price){
+		this();
 		setArticle(article);
 		setPrice(price);
-		setDate( new Date( System.currentTimeMillis()) );
 	}
 	
 	/**
@@ -143,7 +145,8 @@ public class Article {
 	/**
 	 * @param date the date to set
 	 */
-	public void setDate(Date date) {		
+	public void setDate(Date date) {
+		date.setTime( convertTimestamp(date.getTime()) );
 		this.date = date;
 		update();
 	}
@@ -219,6 +222,15 @@ public class Article {
 	 */
 	public void setSynchronizing(boolean dynObj) {
 		this.synchronizing = dynObj;
+	}
+	
+	/**
+	 * Converts timestamp to day only
+	 * @param timestamp
+	 * @return
+	 */
+	private long convertTimestamp(long timestamp){
+		return timestamp - (timestamp%timestampDay);
 	}
 	
 }
