@@ -9,6 +9,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 import java.awt.Toolkit;
 import com.jgoodies.forms.factories.FormFactory;
+import com.toedter.calendar.JDateChooser;
 
 import de.hanneseilers.core.Article;
 import de.hanneseilers.core.Category;
@@ -28,6 +29,11 @@ import java.awt.Font;
 import javax.swing.ImageIcon;
 import javax.swing.JRadioButton;
 import javax.swing.ListSelectionModel;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+import java.util.Date;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 /**
  * Main GUI frame
@@ -103,7 +109,6 @@ public class MainFrame {
 	public JPanel panSettingsButtons;
 	public JLabel lblOverview5;
 	public JLabel lblOverviewTrend;
-	public JLabel lblOverview6;
 	public JLabel lblOverview7;
 	public JTextField txtOverviewDays;
 	public JLabel lblIncomeHeader;
@@ -112,6 +117,13 @@ public class MainFrame {
 	public JButton btnOutgoRefresh;
 	public JLabel lblSettings1;
 	public JLabel lblSettingsApplicationVersion;
+	public JRadioButton rdbOverviewTimePeriod;
+	public JRadioButton rdbOverviewTimeDays;
+	public final ButtonGroup rdbgpOverviewTime = new ButtonGroup();
+	public JLabel lblOverview6;
+	public JButton btnOverviewTimeDaysReset;
+	public JDateChooser dateChooserOverviewTimePeriodFrom;
+	public JDateChooser dateChooserOverviewTimePeriodTill;
 
 	/**
 	 * Create the application.
@@ -263,6 +275,12 @@ public class MainFrame {
 		panIncomeFilter.add(rdbtnIncomeFilterWord, "6, 1");
 		
 		txtIncomeFilter = new JTextField();
+		txtIncomeFilter.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				txtIncomeFilter.selectAll();
+			}
+		});
 		panIncomeFilter.add(txtIncomeFilter, "8, 1, fill, default");
 		txtIncomeFilter.setColumns(10);
 		
@@ -347,6 +365,12 @@ public class MainFrame {
 		panOutgoFilter.add(rdbtnOutgoFilterWord, "6, 1");
 		
 		txtOutgoFilter = new JTextField();
+		txtOutgoFilter.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				txtOutgoFilter.selectAll();
+			}
+		});
 		panOutgoFilter.add(txtOutgoFilter, "8, 1, fill, default");
 		txtOutgoFilter.setColumns(10);
 		
@@ -361,11 +385,13 @@ public class MainFrame {
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("max(10dlu;default)"),
-				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("60dlu"),
+				ColumnSpec.decode("max(73dlu;default)"),
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("max(40dlu;min)"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("max(30dlu;default)"),
 				FormFactory.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("default:grow"),
 				FormFactory.RELATED_GAP_COLSPEC,},
@@ -376,74 +402,141 @@ public class MainFrame {
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
-				RowSpec.decode("15dlu"),
-				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
-				RowSpec.decode("15dlu"),
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
 				RowSpec.decode("default:grow"),
 				FormFactory.RELATED_GAP_ROWSPEC,}));
 		lblOverview4 = new JLabel("Kategorie:");
 		lblOverview4.setHorizontalAlignment(SwingConstants.RIGHT);
 		tabOverview.add(lblOverview4, "2, 2, right, default");
 		cmbOverviewCategory = new JComboBox<Category>();
-		tabOverview.add(cmbOverviewCategory, "4, 2, 5, 1, fill, default");
+		tabOverview.add(cmbOverviewCategory, "4, 2, 7, 1, fill, default");
 		lblStichwort = new JLabel("Suchwort:");
 		lblStichwort.setHorizontalAlignment(SwingConstants.RIGHT);
 		tabOverview.add(lblStichwort, "2, 4, right, default");
 		txtOverviewSearch = new JTextField();
-		tabOverview.add(txtOverviewSearch, "4, 4, 3, 1, fill, default");
+		txtOverviewSearch.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				txtOverviewSearch.selectAll();
+			}
+		});
+		tabOverview.add(txtOverviewSearch, "4, 4, 7, 1, fill, default");
 		txtOverviewSearch.setColumns(10);
 		
-		lblOverview6 = new JLabel("Zeitraum:");
-		tabOverview.add(lblOverview6, "2, 6, right, default");
+		rdbOverviewTimePeriod = new JRadioButton("Zeitraum:");
+		rdbgpOverviewTime.add(rdbOverviewTimePeriod);
+		tabOverview.add(rdbOverviewTimePeriod, "2, 6");
+		
+		lblOverview6 = new JLabel("bis");
+		lblOverview6.setHorizontalAlignment(SwingConstants.CENTER);
+		tabOverview.add(lblOverview6, "6, 6");
+		
+		
+		rdbOverviewTimeDays = new JRadioButton("letzten");
+		rdbOverviewTimeDays.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				
+				if( rdbOverviewTimeDays.isSelected() ){
+					long curDay = (System.currentTimeMillis()/Article.timestampDay) * Article.timestampDay;
+					if( dateChooserOverviewTimePeriodFrom != null
+							&& dateChooserOverviewTimePeriodTill != null){
+						dateChooserOverviewTimePeriodFrom.setDate( new Date(curDay) );
+						dateChooserOverviewTimePeriodTill.setDate( new Date(curDay) );
+						
+					}
+				}
+				else{
+					txtOverviewDays.setText("0");
+				}
+				
+			}
+		});
+		rdbOverviewTimeDays.setSelected(true);
+		rdbgpOverviewTime.add(rdbOverviewTimeDays);
+		tabOverview.add(rdbOverviewTimeDays, "2, 8");
 		
 		txtOverviewDays = new JTextField();
-		txtOverviewDays.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtOverviewDays.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				txtOverviewDays.selectAll();
+			}
+		});
+		txtOverviewDays.setHorizontalAlignment(SwingConstants.CENTER);
 		txtOverviewDays.setText("0");
-		tabOverview.add(txtOverviewDays, "4, 6, fill, center");
+		tabOverview.add(txtOverviewDays, "4, 8, fill, center");
 		txtOverviewDays.setColumns(10);
 		
-		lblOverview7 = new JLabel("letzten Tage");
-		tabOverview.add(lblOverview7, "6, 6");
+		lblOverview7 = new JLabel("Tage");
+		tabOverview.add(lblOverview7, "6, 8");
+		
+		btnOverviewTimeDaysReset = new JButton("alle Tage");
+		btnOverviewTimeDaysReset.setMnemonic('a');
+		tabOverview.add(btnOverviewTimeDaysReset, "8, 8, 3, 1");
 		btnOverviewFilter = new JButton("Filtern");
+		btnOverviewFilter.setFont(new Font("Tahoma", Font.BOLD, 11));
 		btnOverviewFilter.setMnemonic('F');
-		tabOverview.add(btnOverviewFilter, "8, 6");
+		tabOverview.add(btnOverviewFilter, "8, 10, 3, 1");
 		lblOverview1 = new JLabel("Einnahmen:");
 		lblOverview1.setHorizontalAlignment(SwingConstants.RIGHT);
-		tabOverview.add(lblOverview1, "2, 8, 3, 1");
+		tabOverview.add(lblOverview1, "2, 12, 3, 1");
 		lblOverviewIncomeTotal = new JLabel("0,00 EUR");
 		lblOverviewIncomeTotal.setHorizontalAlignment(SwingConstants.RIGHT);
-		tabOverview.add(lblOverviewIncomeTotal, "6, 8");
+		tabOverview.add(lblOverviewIncomeTotal, "6, 12, 3, 1");
 		lblOverview2 = new JLabel("Ausgaben:");
 		lblOverview2.setHorizontalAlignment(SwingConstants.RIGHT);
-		tabOverview.add(lblOverview2, "2, 10, 3, 1");
+		tabOverview.add(lblOverview2, "4, 13");
 		lblOverviewOutgoTotal = new JLabel("0,00 EUR");
 		lblOverviewOutgoTotal.setHorizontalAlignment(SwingConstants.RIGHT);
-		tabOverview.add(lblOverviewOutgoTotal, "6, 10");
+		tabOverview.add(lblOverviewOutgoTotal, "6, 13, 3, 1");
 		lblOverview3 = new JLabel("Bilanz:");
 		lblOverview3.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblOverview3.setFont(new Font("Tahoma", Font.BOLD, 11));
-		tabOverview.add(lblOverview3, "2, 12, 3, 1");
+		tabOverview.add(lblOverview3, "4, 15");
 		lblOverviewTotal = new JLabel("0,00 EUR");
 		lblOverviewTotal.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblOverviewTotal.setHorizontalAlignment(SwingConstants.RIGHT);
-		tabOverview.add(lblOverviewTotal, "6, 12");
+		tabOverview.add(lblOverviewTotal, "6, 15, 3, 1");
 		
 		lblOverview5 = new JLabel("Trend:");
-		tabOverview.add(lblOverview5, "8, 12, right, default");
-		
-		lblOverviewTrend = new JLabel("Nicht genug Daten");
-		tabOverview.add(lblOverviewTrend, "10, 12, left, default");
+		tabOverview.add(lblOverview5, "10, 15, right, default");
 		
 		lstOverviewModel = new DefaultListModel<Article>();
+		
+		lblOverviewTrend = new JLabel("Nicht genug Daten");
+		tabOverview.add(lblOverviewTrend, "12, 15, left, default");
 		lstOverviewArticles = new JList<Article>(lstOverviewModel);
 		lstOverviewArticles.setEnabled(false);
 		lstOverviewArticles.setFont(new Font("Monospaced", Font.BOLD, 12));
 		lstOverviewArticles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tabOverview.add(new JScrollPane( lstOverviewArticles ), "2, 14, 9, 1, fill, fill");
+		tabOverview.add(new JScrollPane( lstOverviewArticles ), "2, 17, 11, 1, fill, fill");
+		
+		long curDay = (System.currentTimeMillis()/Article.timestampDay) * Article.timestampDay;
+		dateChooserOverviewTimePeriodFrom = new JDateChooser( new Date(curDay) );
+		dateChooserOverviewTimePeriodFrom.getDateEditor().getUiComponent().addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				((JTextField) e.getSource()).selectAll();
+			}
+		});
+		dateChooserOverviewTimePeriodTill = new JDateChooser( new Date(curDay) );		
+		dateChooserOverviewTimePeriodTill.getDateEditor().getUiComponent().addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				((JTextField) e.getSource()).selectAll();
+			}
+		});
+		tabOverview.add(dateChooserOverviewTimePeriodFrom, "4, 6");
+		tabOverview.add(dateChooserOverviewTimePeriodTill, "8, 6, 3, 1");
 		
 		tabSettings = new JPanel();
 		tabbedPane.addTab("Einstellungen", null, tabSettings, null);
@@ -474,6 +567,12 @@ public class MainFrame {
 		lblSettingsCategoryName = new JLabel("Kategoriename:");
 		tabSettings.add(lblSettingsCategoryName, "2, 4, right, default");
 		txtSettingsCatergoyName = new JTextField();
+		txtSettingsCatergoyName.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				txtSettingsCatergoyName.selectAll();
+			}
+		});
 		tabSettings.add(txtSettingsCatergoyName, "4, 4, fill, default");
 		txtSettingsCatergoyName.setColumns(10);
 		

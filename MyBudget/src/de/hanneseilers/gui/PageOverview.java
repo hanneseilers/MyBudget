@@ -24,8 +24,7 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 		frmMain.tabbedPane.addChangeListener(this);
 		frmMain.btnOverviewFilter.addActionListener(this);
 		
-		updateCategoriesList();
-		updateArticlesList();		
+		updateCategoriesList();	
 	}
 	
 	/**
@@ -53,7 +52,8 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 		// reset list and income, outgo counter
 		frmMain.lstOverviewModel.clear();
 		income = 0;
-		outgo = 0;		
+		outgo = 0;
+		System.out.println("FILTER: " + getFilter());
 		
 		for( Article a : db.getArticles(getFilter()) ){
 		
@@ -105,10 +105,12 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 		
 		// collect filter data
 		Category category = null;
-		int index = frmMain.cmbOverviewCategory.getSelectedIndex();	
+		int index = frmMain.cmbOverviewCategory.getSelectedIndex();
+		
 		if( index >= 0 ){
 			category = frmMain.cmbOverviewCategory.getItemAt(index);
 		}
+		
 		long days = Long.parseLong( frmMain.txtOverviewDays.getText() ) * Article.timestampDay;
 		String searchWord = frmMain.txtOverviewSearch.getText().trim();
 		
@@ -125,12 +127,30 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 			filterAppended = true;
 		}
 		
-		if( useDays && days > 0 ){
-			if( filterAppended )
-				filter += " AND";
-			long curDay = (System.currentTimeMillis()/Article.timestampDay) * Article.timestampDay;
-			filter += " timestamp>=" + Double.toString(curDay - days);
-			filterAppended = true;
+		if( useDays ){			
+			if(  frmMain.rdbOverviewTimeDays.isSelected() && days > 0 ){
+				
+				// select time period by last days
+				if( filterAppended )
+					filter += " AND";
+				long curDay = (System.currentTimeMillis()/Article.timestampDay) * Article.timestampDay;
+				filter += " timestamp>=" + Long.toString(curDay - days);
+				filterAppended = true;
+				
+			}
+			else if( frmMain.dateChooserOverviewTimePeriodFrom.getDate() != null 
+					&& frmMain.dateChooserOverviewTimePeriodTill.getDate() != null ){
+				
+				// select time period between two dates
+				if( filterAppended )
+					filter += " AND";
+				long periodFrom = frmMain.dateChooserOverviewTimePeriodFrom.getDate().getTime();
+				long periodTill = frmMain.dateChooserOverviewTimePeriodTill.getDate().getTime();
+				filter += " timestamp>=" + Long.toString( periodFrom );
+				filter += " AND timestamp<=" + Long.toString( periodTill );
+				filterAppended = true;
+				
+			}
 		}
 		
 		if( !filterAppended )
@@ -223,7 +243,6 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 		Component source = frmMain.tabbedPane.getSelectedComponent();
 		if( source == frmMain.tabOverview ){
 			updateCategoriesList();
-			updateArticlesList();
 		}
 	}
 	

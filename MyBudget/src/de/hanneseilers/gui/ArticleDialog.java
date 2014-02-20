@@ -121,6 +121,12 @@ public class ArticleDialog extends JDialog {
 		contentPanel.add(lblArticle, "2, 2, right, default");
 
 		txtArticle = new JTextField();
+		txtArticle.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				txtArticle.selectAll();
+			}
+		});
 		contentPanel.add(txtArticle, "4, 2, 3, 1, fill, default");
 		txtArticle.setColumns(10);
 		txtArticle.setText(articleName);
@@ -131,6 +137,12 @@ public class ArticleDialog extends JDialog {
 		contentPanel.add(lblDatum, "2, 4");
 		
 		dateChooser = new JDateChooser();
+		((JTextField) dateChooser.getDateEditor().getUiComponent()).addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				((JTextField) e.getSource()).selectAll();
+			}
+		});
 		dateChooser.setDate( articleDate );
 		contentPanel.add( dateChooser, "4, 4, 3, 1" );
 
@@ -236,12 +248,21 @@ public class ArticleDialog extends JDialog {
 		String articleName = txtArticle.getText();
 		Double articlePrice = 0.0;
 		Date articleDate = dateChooser.getDate();
+		long curDay = (System.currentTimeMillis()/Article.timestampDay) * Article.timestampDay;
+		
+		// check datedate
+		if( articleDate == null ){
+			articleDate = new Date(curDay);
+		}
+		
+		// try to convert price to double
 		try{
 			articlePrice = Double.parseDouble( txtPrice.getText().replace(',', '.') );
 		}
 		catch(NumberFormatException e){
 			articlePrice = 0.0;
 		}
+		
 		Category articleCategory = cmbCategory.getItemAt( cmbCategory.getSelectedIndex() );
 		
 		// check for income or outgo

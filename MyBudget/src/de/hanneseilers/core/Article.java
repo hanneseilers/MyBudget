@@ -1,6 +1,7 @@
 package de.hanneseilers.core;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class Article {
@@ -15,6 +16,7 @@ public class Article {
 	private boolean synchronizing = true;
 	
 	public static final int articleNameLength = Loader.config.getInt( ConfigurationValues.ARTICLE_NAME_LENGTH.getKey() );
+	public static final int categoryNameLength = Loader.config.getInt( ConfigurationValues.CATEGROY_NAME_LENGTH.getKey() );
 	public static final int timestampDay = Loader.config.getInt( ConfigurationValues.ARTICLE_TIMESTAMP_DAYS.getKey() );
 	
 	/**
@@ -146,6 +148,15 @@ public class Article {
 	 * @param date the date to set
 	 */
 	public void setDate(Date date) {
+		// set correct time
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.set(Calendar.HOUR_OF_DAY, 1);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		date = calendar.getTime();
+		
 		date.setTime( convertTimestamp(date.getTime()) );
 		this.date = date;
 		update();
@@ -205,8 +216,16 @@ public class Article {
 	 * @return String representation of article
 	 */
 	public String toString(){
-		String ret = String.format( "%s %-" + Integer.toString(articleNameLength) + "s %3s %9.2f EUR",
-				(new SimpleDateFormat("dd.MM.yyyy")).format(date), article, " ", price );
+		String categoryName = getCategory().getName();
+		String ret = String.format( "%s %-" + Integer.toString(articleNameLength)
+				+ "s [%-" + Integer.toString(categoryNameLength) 
+				+ "s]  %9.2f EUR",
+				
+				(new SimpleDateFormat("dd.MM.yyyy")).format(date),
+				getArticle(),
+				(categoryName.length() <= categoryNameLength) ? categoryName : categoryName.substring(0, categoryNameLength-1)+".",
+				getPrice() );
+		
 		return  ret;
 	}
 
