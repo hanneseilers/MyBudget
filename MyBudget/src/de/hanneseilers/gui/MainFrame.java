@@ -13,6 +13,8 @@ import com.toedter.calendar.JDateChooser;
 
 import de.hanneseilers.core.Article;
 import de.hanneseilers.core.Category;
+import de.hanneseilers.core.ConfigurationValues;
+import de.hanneseilers.core.Loader;
 
 import javax.swing.JButton;
 import java.awt.GridLayout;
@@ -35,6 +37,8 @@ import java.util.Date;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import javax.swing.border.TitledBorder;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 /**
  * Main GUI frame
@@ -137,7 +141,7 @@ public class MainFrame {
 	public JTextField txtSettingsViewArticleNameLength;
 	public JTextField txtSettingsViewCategoryNameLength;
 	public JLabel lblSettingsView3;
-	public JTextField txtlblSettingsViewCurrencySymbol;
+	public JTextField txtSettingsViewCurrencySymbol;
 	public JLabel lblSettingsView4;
 	public JTextField txtSettingsViewPreDecimalPlaces;
 	public JLabel lblSettingsView5;
@@ -648,6 +652,16 @@ public class MainFrame {
 		panSettingsViewOptions.add(lblSettingsView1, "2, 2, right, default");
 		
 		txtSettingsViewArticleNameLength = new JTextField();
+		txtSettingsViewArticleNameLength.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				try{
+					int value = Integer.parseInt(txtSettingsViewArticleNameLength.getText());
+					Loader.config.setProperty( ConfigurationValues.ARTICLE_NAME_LENGTH.getKey(), value );
+					Article.updateFormatterString();
+				} catch( NumberFormatException err ){}
+			}
+		});
 		panSettingsViewOptions.add(txtSettingsViewArticleNameLength, "4, 2, fill, default");
 		txtSettingsViewArticleNameLength.setColumns(10);
 		
@@ -656,6 +670,16 @@ public class MainFrame {
 		panSettingsViewOptions.add(lblSettingsView4, "8, 2, right, default");
 		
 		txtSettingsViewPreDecimalPlaces = new JTextField();
+		txtSettingsViewPreDecimalPlaces.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				try{
+					int value = Integer.parseInt(txtSettingsViewPreDecimalPlaces.getText());
+					Loader.config.setProperty( ConfigurationValues.NUMBERS_PRE_DECIMAL_PLACES.getKey(), value );
+					Article.updateFormatterString();
+				} catch( NumberFormatException err ){}
+			}
+		});
 		panSettingsViewOptions.add(txtSettingsViewPreDecimalPlaces, "10, 2, fill, default");
 		txtSettingsViewPreDecimalPlaces.setColumns(10);
 		
@@ -665,6 +689,16 @@ public class MainFrame {
 		panSettingsViewOptions.add(lblSettingsView2, "2, 4, right, default");
 		
 		txtSettingsViewCategoryNameLength = new JTextField();
+		txtSettingsViewCategoryNameLength.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				try{
+					int value = Integer.parseInt(txtSettingsViewCategoryNameLength.getText());
+					Loader.config.setProperty( ConfigurationValues.CATEGROY_NAME_LENGTH.getKey(), value );
+					Article.updateFormatterString();
+				} catch( NumberFormatException err ){}
+			}
+		});
 		panSettingsViewOptions.add(txtSettingsViewCategoryNameLength, "4, 4, fill, default");
 		txtSettingsViewCategoryNameLength.setColumns(10);
 		
@@ -673,6 +707,16 @@ public class MainFrame {
 		panSettingsViewOptions.add(lblSettingsView5, "8, 4, right, default");
 		
 		txtSettingsViewPostDecimalPlaces = new JTextField();
+		txtSettingsViewPostDecimalPlaces.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				try{
+					int value = Integer.parseInt(txtSettingsViewPostDecimalPlaces.getText());
+					Loader.config.setProperty( ConfigurationValues.NUMBERS_POST_DECIMAL_PLACES.getKey(), value );
+					Article.updateFormatterString();
+				} catch( NumberFormatException err ){}
+			}
+		});
 		panSettingsViewOptions.add(txtSettingsViewPostDecimalPlaces, "10, 4, fill, default");
 		txtSettingsViewPostDecimalPlaces.setColumns(10);
 		
@@ -680,9 +724,17 @@ public class MainFrame {
 		lblSettingsView3.setHorizontalAlignment(SwingConstants.RIGHT);
 		panSettingsViewOptions.add(lblSettingsView3, "2, 6, right, default");
 		
-		txtlblSettingsViewCurrencySymbol = new JTextField();
-		panSettingsViewOptions.add(txtlblSettingsViewCurrencySymbol, "4, 6, fill, default");
-		txtlblSettingsViewCurrencySymbol.setColumns(10);
+		txtSettingsViewCurrencySymbol = new JTextField();
+		txtSettingsViewCurrencySymbol.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				String value = txtSettingsViewCurrencySymbol.getText();
+				Loader.config.setProperty( ConfigurationValues.ARTICLE_CURRENCY_SYMBOL.getKey(), value );
+				Article.updateFormatterString();
+			}
+		});
+		panSettingsViewOptions.add(txtSettingsViewCurrencySymbol, "4, 6, fill, default");
+		txtSettingsViewCurrencySymbol.setColumns(10);
 		
 		panSettingsAppInfo = new JPanel();
 		panSettingsAppInfo.setBorder(new TitledBorder(null, "Programminformationen", TitledBorder.LEADING, TitledBorder.TOP, null, null));

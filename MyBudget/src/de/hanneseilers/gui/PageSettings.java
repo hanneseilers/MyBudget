@@ -24,8 +24,26 @@ public class PageSettings extends Page implements ActionListener, ChangeListener
 		String appVersion = (String) Loader.config.getProperty( ConfigurationValues.APP_VERSION.getKey() );
 		frmMain.lblSettingsApplicationVersion.setText(appVersion);
 		
+		updateViewSettings();
 		updateCategoriesList();
 		frmMain.cmbSettingsCategories.setSelectedIndex(0);
+	}
+	
+	/**
+	 * Updates view parameters
+	 */
+	private void updateViewSettings(){
+		int articleNameLength = Loader.config.getInt( ConfigurationValues.ARTICLE_NAME_LENGTH.getKey() );
+		int categoryNameLength = Loader.config.getInt( ConfigurationValues.CATEGROY_NAME_LENGTH.getKey() );
+		String currencySymbol = Loader.config.getString( ConfigurationValues.ARTICLE_CURRENCY_SYMBOL.getKey() );
+		int numbersPreDecimalPlaces = Loader.config.getInt( ConfigurationValues.NUMBERS_PRE_DECIMAL_PLACES.getKey() );
+		int numbersPostDecimalPlaces = Loader.config.getInt( ConfigurationValues.NUMBERS_POST_DECIMAL_PLACES.getKey() );
+		
+		frmMain.txtSettingsViewArticleNameLength.setText( Integer.toString(articleNameLength) );
+		frmMain.txtSettingsViewCategoryNameLength.setText( Integer.toString(categoryNameLength) );
+		frmMain.txtSettingsViewCurrencySymbol.setText( currencySymbol );
+		frmMain.txtSettingsViewPreDecimalPlaces.setText( Integer.toString(numbersPreDecimalPlaces) );
+		frmMain.txtSettingsViewPostDecimalPlaces.setText( Integer.toString(numbersPostDecimalPlaces) );
 	}
 	
 	/**
