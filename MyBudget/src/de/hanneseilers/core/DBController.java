@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -21,6 +22,10 @@ public class DBController {
 	private Connection connection = null;
 	private boolean dbReady = false;
 	private Logger logger = Logger.getLogger(getClass());
+	private HashMap<String, List<Article>> articlesMap = new HashMap<String, List<Article>>();
+	private List<Category> categoriesList = new ArrayList<Category>();
+	private HashMap<Integer, Category> categoriesListCID = new HashMap<Integer, Category>();
+	private HashMap<String, Category> categoriesListName = new HashMap<String, Category>();
 
 	public DBController() {
 		
@@ -120,6 +125,30 @@ public class DBController {
 	}
 	
 	/**
+	 * Clears all buffer lists
+	 */
+	private void clearAllBuffers(){
+		clearArticleBuffer();
+		clearCategoryBuffer();
+	}
+	
+	/**
+	 * Clears category buffer lists
+	 */
+	private void clearCategoryBuffer(){
+		categoriesList.clear();
+		categoriesListCID.clear();
+		categoriesListName.clear();
+	}
+	
+	/**
+	 * Clears article buffer lists
+	 */
+	private void clearArticleBuffer(){
+		articlesMap.clear();
+	}
+	
+	/**
 	 * Adds new category
 	 * @param category
 	 * @return true if successfully
@@ -143,6 +172,7 @@ public class DBController {
 				ResultSet result = exec(sql);
 				if( result.getType() == ResultSet.TYPE_FORWARD_ONLY || result.first() ){
 					category.setCID( result.getInt("cid") );
+					clearCategoryBuffer();
 					return true;
 				}
 
@@ -162,6 +192,7 @@ public class DBController {
 	public boolean deleteCategory(Category category){		
 		String sql = "DELETE FROM categories WHERE cid=" + Integer.toString(category.getCID())
 				+ " AND name='" + category.getName() + "';";
+		clearCategoryBuffer();
 		return exeUpdate(sql);		
 	}
 	
@@ -192,20 +223,32 @@ public class DBController {
 		try{			
 			String sql = "";
 		
-			if( cid != -1 )
+			if( cid != -1 ){
 				// search by CID
+				if( categoriesListCID.containsKey(cid) ){
+					return categoriesListCID.get(cid);
+				}
 				sql = "SELECT * FROM categories WHERE cid='" + Integer.toString(cid) + "'";
-			else if( name != null )
+			}
+			else if( name != null ){
 				// search by name
+				if( categoriesListName.containsKey(name) ){
+					return categoriesListName.get(name);
+				}
 				sql = "SELECT * FROM categories WHERE name='" + name + "'";
+			}
 			
 			if( sql != "" ){
 				ResultSet result = exec(sql);
 				if( result.getType() == ResultSet.TYPE_FORWARD_ONLY || result.first() ){
-					Category category = new Category(false);
+					Category category = new Category();
 					category.setName( result.getString("name") );
 					category.setCID( result.getInt("cid") );
-					category.setSynchronizing(true);
+					
+					// add category to buffer lists
+					categoriesListCID.put(category.getCID(), category);
+					categoriesListName.put(category.getName(), category);
+					
 					return category;
 				}
 			}		
@@ -224,7 +267,9 @@ public class DBController {
 		try {
 			
 			String sql = "SELECT COUNT(*) AS num FROM categories";
-			return (exec(sql).getInt("num") == 0);
+			if( (exec(sql).getInt("num") == 0) ){
+				categoriesList.clear();
+			}
 			
 		} catch (SQLException e) {
 			logger.warn("Can execute sql statement: " + e.getMessage());
@@ -236,26 +281,27 @@ public class DBController {
 	/**
 	 * @return List of categories
 	 */
-	public List<Category> getCategories(){
-		List<Category> categories = new ArrayList<Category>();
+	public List<Category> getCategories(){		
+		if( categoriesList.size() == 0 ){
 		
-		try {
-		
-			String sql = "SELECT * FROM categories ORDER BY name ASC";
-			ResultSet result = exec(sql);	
-			while( result.next() ){
-				Category category = new Category(false);
-				category.setName( result.getString("name") ); 
-				category.setCID( result.getInt("cid") );
-				category.setSynchronizing(true);
-				categories.add( category );
+			try {
+			
+				String sql = "SELECT * FROM categories ORDER BY name ASC";
+				ResultSet result = exec(sql);	
+				while( result.next() ){
+					Category category = new Category();
+					category.setName( result.getString("name") ); 
+					category.setCID( result.getInt("cid") );
+					categoriesList.add( category );
+				}
+				
+			} catch( SQLException e ){
+				logger.error("Can not get list of categories: " + e.getMessage());
 			}
 			
-		} catch( SQLException e ){
-			logger.error("Can not get list of categories: " + e.getMessage());
 		}
 		
-		return categories;
+		return categoriesList;
 	}
 	
 
@@ -269,6 +315,7 @@ public class DBController {
 			String sql = "UPDATE categories SET name='"
 					+ category.getName() + "' WHERE cid="
 					+ Integer.toString(category.getCID()) + ";";
+			 clearAllBuffers();
 			return exeUpdate(sql);	
 		}
 		return false;
@@ -280,41 +327,53 @@ public class DBController {
 	 * @param condition	SQL Condition to add to request
 	 * @return
 	 */
-	public List<Article> getArticles(String condition){		
-		List<Article> articles = new ArrayList<Article>();
-		
+	public List<Article> getArticles(String condition){
 		if( condition == null ){
 			condition = "";
 		}
 		
-		try{
+		if( !articlesMap.containsKey(condition) ){
 			
-			String sql = "SELECT * FROM articles " + condition + " ORDER BY timestamp DESC, aid DESC;";
+			List<Article> articlesList = new ArrayList<Article>();
 			
-			ResultSet result = exec(sql);
-			while( result.next() ){
-				Article article = new Article(false);
-				article.setAid( result.getInt("aid") );
-				article.setArticle( result.getString("article") );
-				article.setPrice( result.getDouble("price") );
-				article.setDate( new Date(result.getLong("timestamp")) );
-				article.setCategory( getCategory(result.getInt("cid")) );
-				article.setSynchronizing(true);
-				articles.add( article );
+			try{
+				
+				String sql = "SELECT * FROM articles " + condition + " ORDER BY timestamp DESC, aid DESC;";
+				
+				// ad articles form database to articlellist
+				ResultSet result = exec(sql);
+				while( result.next() ){
+					Article article = new Article();
+					article.setAid( result.getInt("aid") );
+					article.setArticle( result.getString("article") );
+					article.setPrice( result.getDouble("price") );
+					article.setDate( new Date(result.getLong("timestamp")) );
+					article.setCategory( getCategory(result.getInt("cid")) );
+					articlesList.add( article );
+				}
+				
+				// add article list to hash map
+				articlesMap.put(condition, articlesList);
+				
+			} catch(SQLException e){
+				logger.error("Can not get list of articles: " + e.getMessage());
 			}
 			
-		} catch(SQLException e){
-			logger.error("Can not get list of articles: " + e.getMessage());
 		}
 		
-		return articles;		
+		return articlesMap.get(condition);		
 	}
 	
+	/**
+	 * Adds article to database
+	 * @param article
+	 * @return True if successfull, false if article already in database or error occured while adding.
+	 */
 	public boolean addArticle(Article article){
 		try {
 			
 			// First check if article is already there
-			String sql = "SELECT COUNT(*) AS num FROM articles WHERE aid='" + Integer.toString(article.getAid()) + "';";
+			String sql = "SELECT COUNT(*) AS num FROM articles WHERE aid='" + article.getAid() + "';";
 			if( article.getAid() < 0 || exec(sql).getInt("num") == 0 ){	
 				
 				// Add areticle
@@ -333,6 +392,7 @@ public class DBController {
 				ResultSet result = exec(sql);
 				if( result.getType() == ResultSet.TYPE_FORWARD_ONLY || result.first() ){
 					article.setAid( result.getInt("aid") );
+					articlesMap.clear();
 					return true;
 				}
 						
@@ -355,6 +415,7 @@ public class DBController {
 				+ " AND article='" + article.getArticle() + "';";
 		if( exeUpdate(sql) ){
 			logger.debug("Deleted " + article.getArticle() + " from database.");
+			articlesMap.clear();
 			return true;
 		}
 		
@@ -375,6 +436,7 @@ public class DBController {
 					+ "timestamp=" + Long.toString(article.getDate().getTime()) + ","
 					+ "cid=" + Integer.toString(article.getCategory().getCID()) + ""
 					+ " WHERE aid="	+ Integer.toString(article.getAid()) + ";";
+			articlesMap.clear();
 			return exeUpdate(sql);	
 		}
 		

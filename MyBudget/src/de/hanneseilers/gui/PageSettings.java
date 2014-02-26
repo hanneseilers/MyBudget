@@ -55,7 +55,8 @@ public class PageSettings extends Page implements ActionListener, ChangeListener
 		if( source == frmMain.btnSettingsCategoryAdd ){
 			
 			// add new category
-			new Category( frmMain.txtSettingsCatergoyName.getText() );
+			Category category = new Category( frmMain.txtSettingsCatergoyName.getText() );
+			category.update();
 			
 		}
 		else if( source == frmMain.btnSettingsRemoveCategory ){
@@ -73,7 +74,10 @@ public class PageSettings extends Page implements ActionListener, ChangeListener
 			int index = frmMain.cmbSettingsCategories.getSelectedIndex();
 			String name = frmMain.txtSettingsCatergoyName.getText();
 			if( index >= 0 ){
-				frmMain.cmbSettingsCategories.getItemAt( index ).setName(name);				
+				Category category = frmMain.cmbSettingsCategories.getItemAt( index );
+				category.setName(name);
+				category.update();
+				
 			}			
 			
 		}

@@ -12,27 +12,21 @@ public class Article {
 	private String article = "";
 	private Date date = new Date();
 	private double price = 0.0;
-	private Category category = new Category(false);
-	private boolean synchronizing = true;
+	private Category category = new Category();
 	
-	public static final int articleNameLength = Loader.config.getInt( ConfigurationValues.ARTICLE_NAME_LENGTH.getKey() );
-	public static final int categoryNameLength = Loader.config.getInt( ConfigurationValues.CATEGROY_NAME_LENGTH.getKey() );
-	public static final int timestampDay = Loader.config.getInt( ConfigurationValues.ARTICLE_TIMESTAMP_DAYS.getKey() );
+	public static String formatterString = null;
+	public static int articleNameLength = 40;
+	public static int categoryNameLength = 6;
+	public static int numbersPreDecimalPlaces = 6;
+	public static int numbersPostDecimalPlaces = 2;
+	public static String currencySymbol = "EUR";
+	public static int timestampDay = Loader.config.getInt( ConfigurationValues.ARTICLE_TIMESTAMP_DAYS.getKey() );
 	
 	/**
 	 * Constructor
 	 */
 	public Article(){
 		setDate( new Date(convertTimestamp(System.currentTimeMillis())) );
-	}
-	
-	/**
-	 * Constructor
-	 * @param nondynObj If false the object is
-	 * not automatically updated on database
-	 */
-	public Article(boolean dynObj) {
-		this.synchronizing = dynObj;
 	}
 	
 	/**
@@ -134,7 +128,6 @@ public class Article {
 		}
 
 		this.article = article;
-		update();
 	}
 
 	/**
@@ -159,7 +152,6 @@ public class Article {
 		
 		date.setTime( convertTimestamp(date.getTime()) );
 		this.date = date;
-		update();
 	}
 
 	/**
@@ -174,7 +166,6 @@ public class Article {
 	 */
 	public void setPrice(double price) {
 		this.price = Math.round( (price)*100 )/100.0;
-		update();
 	}
 	
 	/**
@@ -189,7 +180,6 @@ public class Article {
 	 */
 	public void setCategory(Category category) {
 		this.category = category;
-		update();
 	}
 	
 	
@@ -198,7 +188,7 @@ public class Article {
 	 * @return True if successfull
 	 */
 	public boolean update(){
-		if( synchronizing && db.isDbReady() ){
+		if( db.isDbReady() ){
 			return db.updateArticle(this);
 		}
 		return false;
@@ -216,31 +206,25 @@ public class Article {
 	 * @return String representation of article
 	 */
 	public String toString(){
-		String categoryName = getCategory().getName();
-		String ret = String.format( "%s %-" + Integer.toString(articleNameLength)
-				+ "s [%-" + Integer.toString(categoryNameLength) 
-				+ "s]  %9.2f EUR",
-				
-				(new SimpleDateFormat("dd.MM.yyyy")).format(date),
-				getArticle(),
-				(categoryName.length() <= categoryNameLength) ? categoryName : categoryName.substring(0, categoryNameLength-1)+".",
-				getPrice() );
+		Category category = getCategory();
+		String ret = "";
+		
+		// Check formatter string
+		if( formatterString == null ){
+			updateFormatterString();
+		}
+		
+		if( category != null ){
+			String categoryName = category.getName();
+			ret = String.format( formatterString,
+					
+					(new SimpleDateFormat("dd.MM.yyyy")).format(date),
+					getArticle(),
+					(categoryName.length() <= categoryNameLength) ? categoryName : categoryName.substring(0, categoryNameLength-1)+".",
+					getPrice() );
+		}
 		
 		return  ret;
-	}
-
-	/**
-	 * @return the synchronizing
-	 */
-	public boolean isSynchronizing() {
-		return synchronizing;
-	}
-
-	/**
-	 * @param synchronizing the synchronizing to set
-	 */
-	public void setSynchronizing(boolean dynObj) {
-		this.synchronizing = dynObj;
 	}
 	
 	/**
@@ -250,6 +234,25 @@ public class Article {
 	 */
 	private long convertTimestamp(long timestamp){
 		return timestamp - (timestamp%timestampDay);
+	}
+	
+	
+	/**
+	 * Updates formatter string for toString method of article
+	 */
+	public static void updateFormatterString(){
+		articleNameLength = Loader.config.getInt( ConfigurationValues.ARTICLE_NAME_LENGTH.getKey() );
+		categoryNameLength = Loader.config.getInt( ConfigurationValues.CATEGROY_NAME_LENGTH.getKey() );
+		currencySymbol = Loader.config.getString( ConfigurationValues.ARTICLE_CURRENCY_SYMBOL.getKey() );
+		numbersPreDecimalPlaces = Loader.config.getInt( ConfigurationValues.NUMBERS_PRE_DECIMAL_PLACES.getKey() );
+		numbersPostDecimalPlaces = Loader.config.getInt( ConfigurationValues.NUMBERS_POST_DECIMAL_PLACES.getKey() );
+		
+		formatterString = "%s %-" + articleNameLength
+				+ "s [%-" + categoryNameLength
+				+ "s]  %" + (numbersPreDecimalPlaces+numbersPostDecimalPlaces+1)
+				+ "." + numbersPostDecimalPlaces 
+				+ "f " + currencySymbol;
+		
 	}
 	
 }

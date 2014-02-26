@@ -34,7 +34,7 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 		frmMain.cmbOverviewCategory.removeAllItems();
 		
 		// add all category
-		Category category = new Category(false);
+		Category category = new Category();
 		category.setCID(-2);
 		category.setName("> ALLE <");		
 		frmMain.cmbOverviewCategory.addItem( category );

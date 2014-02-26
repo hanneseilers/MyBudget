@@ -68,10 +68,12 @@ public class PageIncome extends Page implements ActionListener, ChangeListener, 
 		
 		// update gui list
 		frmMain.lstIncomeModel.clear();
-		for( Article a : articles ){
-			frmMain.lstIncomeModel.addElement(a);
-		}		
-		frmMain.lstIncome.setSelectedIndex(0);
+		if( articles.size() > 0 ){
+			for( Article a : articles ){
+				frmMain.lstIncomeModel.addElement(a);
+			}		
+			frmMain.lstIncome.setSelectedIndex(0);
+		}
 		
 	}
 	

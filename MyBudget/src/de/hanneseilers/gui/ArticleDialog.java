@@ -87,7 +87,7 @@ public class ArticleDialog extends JDialog {
 		if( aArticle != null ){
 			article = aArticle;
 			articleName = article.getArticle();
-			articlePrice = String.format( "%.2f", (article.getPrice()) );
+			articlePrice = String.format( "%."+Article.numbersPostDecimalPlaces+"f", (article.getPrice()) );
 			articleDate = article.getDate();
 			
 		}
@@ -277,6 +277,7 @@ public class ArticleDialog extends JDialog {
 		if( article == null ){
 			// add new article			
 			article = new Article( articleName, articlePrice, articleDate, articleCategory );
+			article.update();
 			logger.debug("Added new article: " + article.toString());
 		}
 		else{
@@ -285,6 +286,7 @@ public class ArticleDialog extends JDialog {
 			article.setDate(articleDate);
 			article.setPrice(articlePrice);
 			article.setCategory(articleCategory);
+			article.update();
 			logger.debug("Updated article: " + article.toString());
 		}
 		logger.debug("Hiding dialog window: " + getTitle());

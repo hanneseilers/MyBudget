@@ -14,7 +14,11 @@ public enum ConfigurationValues {
 	
 	ARTICLE_TIMESTAMP_DAYS ("article.timestamp.days", 24*60*60*1000),
 	ARTICLE_NAME_LENGTH ("article.name.length", 40),
-	CATEGROY_NAME_LENGTH ("category.name.length", 8);
+	ARTICLE_CURRENCY_SYMBOL ("article.currency.symbol", "EUR"),
+	CATEGROY_NAME_LENGTH ("category.name.length", 8),
+	
+	NUMBERS_PRE_DECIMAL_PLACES ("numbers.pre.decimal.places", 6),
+	NUMBERS_POST_DECIMAL_PLACES ("numbers.post.decimal.places", 2);
 	
 	
 	
