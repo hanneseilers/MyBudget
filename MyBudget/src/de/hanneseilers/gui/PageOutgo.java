@@ -14,6 +14,9 @@ import javax.swing.event.ChangeListener;
 
 import de.hanneseilers.core.Article;
 import de.hanneseilers.core.Category;
+import de.hanneseilers.core.ConfigurationValues;
+import de.hanneseilers.core.Loader;
+import de.hanneseilers.core.tasks.ArticleListUpdater;
 
 public class PageOutgo extends Page implements ActionListener, ChangeListener, MouseListener, KeyListener {
 
@@ -57,21 +60,21 @@ public class PageOutgo extends Page implements ActionListener, ChangeListener, M
 	 */
 	private void updateArticlesList(boolean useFilter){
 		
+		// get row limit
+		int limit = Loader.config.getInt( ConfigurationValues.ARTICLE_MAX_ROWS.getKey() );
+		
 		// get list of articles
 		List<Article> articles;
 		if( useFilter ){
-			articles = db.getArticles( getFilter() );
+			articles = db.getArticles( getFilter(), limit );
 		}
 		else{
-			articles = db.getArticles( "WHERE price < 0.0" );
+			articles = db.getArticles( "WHERE price < 0.0", limit );
 		}
 		
 		// update gui list
-		frmMain.lstOutgoModel.clear();
-		for( Article a : articles ){
-			frmMain.lstOutgoModel.addElement(a);
-		}
-		frmMain.lstOutgo.setSelectedIndex(0);
+		ArticleListUpdater update = new ArticleListUpdater( "outgo", frmMain.lstOutgoModel, articles );
+		(new Thread( update )).start();
 		
 	}
 	

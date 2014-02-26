@@ -11,6 +11,9 @@ import javax.swing.event.ChangeListener;
 
 import de.hanneseilers.core.Article;
 import de.hanneseilers.core.Category;
+import de.hanneseilers.core.ConfigurationValues;
+import de.hanneseilers.core.Loader;
+import de.hanneseilers.core.tasks.ArticleListUpdater;
 
 public class PageOverview extends Page implements ActionListener, ChangeListener {
 
@@ -53,12 +56,16 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 		frmMain.lstOverviewModel.clear();
 		income = 0;
 		outgo = 0;
-		System.out.println("FILTER: " + getFilter());
 		
-		for( Article a : db.getArticles(getFilter()) ){
+		// get row limit
+		int limit = Loader.config.getInt( ConfigurationValues.ARTICLE_MAX_ROWS.getKey() );
+		List<Article> articles = db.getArticles( getFilter(), limit );
+		
+		// calculate income and outgo
+		for( Article article : articles ){
 		
 			// calculate income and outgo
-			double price = a.getPrice();
+			double price = article.getPrice();
 			if( price < 0 ){
 				outgo += price;
 			}
@@ -66,10 +73,11 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 				income += price;
 			}
 			
-			// add article to list
-			frmMain.lstOverviewModel.addElement(a);
-			
-		}	
+		}
+		
+		// update gui list
+		ArticleListUpdater update = new ArticleListUpdater( "overview", frmMain.lstOverviewModel, articles );
+		(new Thread( update )).start();
 		
 		// show income, outgo and balance
 		double total = income + outgo;
@@ -138,7 +146,8 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 				filterAppended = true;
 				
 			}
-			else if( frmMain.dateChooserOverviewTimePeriodFrom.getDate() != null 
+			else if( frmMain.rdbOverviewTimePeriod.isSelected()
+					&& frmMain.dateChooserOverviewTimePeriodFrom.getDate() != null 
 					&& frmMain.dateChooserOverviewTimePeriodTill.getDate() != null ){
 				
 				// select time period between two dates
@@ -182,9 +191,12 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 			filter += " timestamp>=" + Long.toString(lastDay2)
 					+ " AND timestamp<" + Long.toString(lastDay1);
 			
+			// get row limit
+			int limit = Loader.config.getInt( ConfigurationValues.ARTICLE_MAX_ROWS.getKey() );
+			
 			// get articles and reference articles
-			List<Article> articles = db.getArticles( getFilter() );
-			List<Article> articlesRef = db.getArticles( filter );
+			List<Article> articles = db.getArticles( getFilter(), limit );
+			List<Article> articlesRef = db.getArticles( filter, limit );
 			if( articles.size() > 0 ){				
 				if( articlesRef.size() > 0 ){
 					

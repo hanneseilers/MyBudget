@@ -21,8 +21,11 @@ public class PageSettings extends Page implements ActionListener, ChangeListener
 		frmMain.btnSettingsCategoryRename.addActionListener(this);
 		frmMain.btnSettingsRemoveCategory.addActionListener(this);
 		
-		String appVersion = (String) Loader.config.getProperty( ConfigurationValues.APP_VERSION.getKey() );
+		// show application version and last update
+		String appVersion = Loader.config.getString( ConfigurationValues.APP_VERSION.getKey() );
+		String lastUpdate = Loader.config.getString( ConfigurationValues.APP_LAST_UPDATE.getKey() );
 		frmMain.lblSettingsApplicationVersion.setText(appVersion);
+		frmMain.lblSettingsAppLastUpdate.setText(lastUpdate);
 		
 		updateViewSettings();
 		updateCategoriesList();
@@ -38,12 +41,14 @@ public class PageSettings extends Page implements ActionListener, ChangeListener
 		String currencySymbol = Loader.config.getString( ConfigurationValues.ARTICLE_CURRENCY_SYMBOL.getKey() );
 		int numbersPreDecimalPlaces = Loader.config.getInt( ConfigurationValues.NUMBERS_PRE_DECIMAL_PLACES.getKey() );
 		int numbersPostDecimalPlaces = Loader.config.getInt( ConfigurationValues.NUMBERS_POST_DECIMAL_PLACES.getKey() );
+		int limit = Loader.config.getInt( ConfigurationValues.ARTICLE_MAX_ROWS.getKey() );
 		
 		frmMain.txtSettingsViewArticleNameLength.setText( Integer.toString(articleNameLength) );
 		frmMain.txtSettingsViewCategoryNameLength.setText( Integer.toString(categoryNameLength) );
 		frmMain.txtSettingsViewCurrencySymbol.setText( currencySymbol );
 		frmMain.txtSettingsViewPreDecimalPlaces.setText( Integer.toString(numbersPreDecimalPlaces) );
 		frmMain.txtSettingsViewPostDecimalPlaces.setText( Integer.toString(numbersPostDecimalPlaces) );
+		frmMain.txtSettingsViewArticleMaxRows.setText( Integer.toString(limit) );
 	}
 	
 	/**

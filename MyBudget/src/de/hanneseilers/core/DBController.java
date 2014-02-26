@@ -325,20 +325,28 @@ public class DBController {
 	/**
 	 * Recieves list of articles
 	 * @param condition	SQL Condition to add to request
+	 * @param limit	max number of rows
 	 * @return
 	 */
-	public List<Article> getArticles(String condition){
+	public List<Article> getArticles(String condition, int limit){
 		if( condition == null ){
 			condition = "";
 		}
 		
-		if( !articlesMap.containsKey(condition) ){
+		if( limit < 0 ){
+			limit = 1000;
+		}
+		
+		String key = condition+Integer.toString(limit);
+		
+		if( !articlesMap.containsKey(key) ){
 			
 			List<Article> articlesList = new ArrayList<Article>();
 			
 			try{
 				
-				String sql = "SELECT * FROM articles " + condition + " ORDER BY timestamp DESC, aid DESC;";
+				String sql = "SELECT * FROM articles " + condition
+						+ " ORDER BY timestamp DESC, aid DESC LIMIT " + limit + ";";
 				
 				// ad articles form database to articlellist
 				ResultSet result = exec(sql);
@@ -353,7 +361,7 @@ public class DBController {
 				}
 				
 				// add article list to hash map
-				articlesMap.put(condition, articlesList);
+				articlesMap.put(key, articlesList);
 				
 			} catch(SQLException e){
 				logger.error("Can not get list of articles: " + e.getMessage());
@@ -361,7 +369,7 @@ public class DBController {
 			
 		}
 		
-		return articlesMap.get(condition);		
+		return articlesMap.get(key);		
 	}
 	
 	/**

@@ -11,7 +11,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -24,14 +27,13 @@ import de.hanneseilers.gui.SplashScreen;
 /**
  * Class for loading application
  * @author Hannes Eilers
- *
  */
 public class Loader {
 	
 	public static PropertiesConfiguration config = null;
 	private static final String configFileName = "mybudget.properties"; 
 	
-	private Logger logger;
+	public static Logger logger;
 	
 	/**
 	 * Constructor
@@ -151,7 +153,7 @@ public class Loader {
 	/**
 	 * @return URL of update site or null if no update
 	 */
-	public List<URL> checkForUpdate(){
+	public static List<URL> checkForUpdate(){
 		List<URL> downloadURL = new ArrayList<URL>();
 		String updateURL = "";
 		
@@ -217,6 +219,8 @@ public class Loader {
 		 * Needs do be done before download new program file because
 		 * after download no classes could be found by apacho commons configuration.
 		 */
+		Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		config.setProperty( ConfigurationValues.APP_LAST_UPDATE.getKey(), formatter.format(new Date()) );
 		config.clearProperty( ConfigurationValues.APP_UPDATE_REVISION.getKey() );
 		config.clearProperty( ConfigurationValues.APP_VERSION.getKey() );
 		
@@ -245,7 +249,7 @@ public class Loader {
 	/**
 	 * Restarts application
 	 */
-	public void restartApplication(){
+	public static boolean restartApplication(){
 		
 		final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		File currentJar = null;
@@ -254,7 +258,7 @@ public class Loader {
 		
 			/* is it a jar file? */
 			if(!currentJar.getName().endsWith(".jar"))
-				return;
+				return false;
 		
 			/* Build command: java -jar application.jar */
 			final ArrayList<String> command = new ArrayList<String>();
@@ -273,6 +277,7 @@ public class Loader {
 		}
 		
 		System.exit(0);
+		return true;
 
 	}
 

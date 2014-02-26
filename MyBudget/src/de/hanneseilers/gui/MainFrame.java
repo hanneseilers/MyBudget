@@ -39,6 +39,8 @@ import java.awt.event.FocusEvent;
 import javax.swing.border.TitledBorder;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * Main GUI frame
@@ -126,7 +128,6 @@ public class MainFrame {
 	public JRadioButton rdbOverviewTimeDays;
 	public final ButtonGroup rdbgpOverviewTime = new ButtonGroup();
 	public JLabel lblOverview6;
-	public JButton btnOverviewTimeDaysReset;
 	public JDateChooser dateChooserOverviewTimePeriodFrom;
 	public JDateChooser dateChooserOverviewTimePeriodTill;
 	public JPanel panSettingsCategories;
@@ -146,6 +147,9 @@ public class MainFrame {
 	public JTextField txtSettingsViewPreDecimalPlaces;
 	public JLabel lblSettingsView5;
 	public JTextField txtSettingsViewPostDecimalPlaces;
+	public JLabel lblSettingsView6;
+	public JTextField txtSettingsViewArticleMaxRows;
+	private JButton btnOverviewTimeDaysReset;
 
 	/**
 	 * Create the application.
@@ -477,7 +481,7 @@ public class MainFrame {
 					}
 				}
 				else{
-					txtOverviewDays.setText("0");
+					txtOverviewDays.setText("-1");
 				}
 				
 			}
@@ -494,7 +498,7 @@ public class MainFrame {
 			}
 		});
 		txtOverviewDays.setHorizontalAlignment(SwingConstants.CENTER);
-		txtOverviewDays.setText("0");
+		txtOverviewDays.setText("-1");
 		tabOverview.add(txtOverviewDays, "4, 8, fill, center");
 		txtOverviewDays.setColumns(10);
 		
@@ -502,6 +506,12 @@ public class MainFrame {
 		tabOverview.add(lblOverview7, "6, 8");
 		
 		btnOverviewTimeDaysReset = new JButton("alle Tage");
+		btnOverviewTimeDaysReset.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		btnOverviewTimeDaysReset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				txtOverviewDays.setText("-1");
+			}
+		});
 		btnOverviewTimeDaysReset.setMnemonic('a');
 		tabOverview.add(btnOverviewTimeDaysReset, "8, 8, 3, 1");
 		btnOverviewFilter = new JButton("Filtern");
@@ -736,6 +746,24 @@ public class MainFrame {
 		panSettingsViewOptions.add(txtSettingsViewCurrencySymbol, "4, 6, fill, default");
 		txtSettingsViewCurrencySymbol.setColumns(10);
 		
+		lblSettingsView6 = new JLabel("Max. angezeigte Artikel:");
+		lblSettingsView6.setHorizontalAlignment(SwingConstants.RIGHT);
+		panSettingsViewOptions.add(lblSettingsView6, "8, 6, right, default");
+		
+		txtSettingsViewArticleMaxRows = new JTextField();
+		txtSettingsViewArticleMaxRows.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				try{
+					int value = Integer.parseInt(txtSettingsViewArticleMaxRows.getText());
+					Loader.config.setProperty( ConfigurationValues.ARTICLE_MAX_ROWS.getKey(), value );
+					Article.updateFormatterString();
+				} catch( NumberFormatException err ){}
+			}
+		});
+		panSettingsViewOptions.add(txtSettingsViewArticleMaxRows, "10, 6, fill, default");
+		txtSettingsViewArticleMaxRows.setColumns(10);
+		
 		panSettingsAppInfo = new JPanel();
 		panSettingsAppInfo.setBorder(new TitledBorder(null, "Programminformationen", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		tabSettings.add(panSettingsAppInfo, "2, 6, fill, fill");
@@ -764,6 +792,34 @@ public class MainFrame {
 		panSettingsAppInfo.add(lblSettingsApplicationVersion, "4, 2, fill, default");
 		
 		btnSettingsAppUpdate = new JButton("Nach Updates suchen");
+		btnSettingsAppUpdate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String buttonText = btnSettingsAppUpdate.getText();
+				// check if to update or download
+				if( buttonText.contains("suchen") ){
+					
+					// check for update
+					btnSettingsAppUpdate.setEnabled(false);
+					if( Loader.checkForUpdate().size() > 0 ){
+						// Update button
+						btnSettingsAppUpdate.setText( "Updates herunterladen" );
+						btnSettingsAppUpdate.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/download_16.png")));
+					} else{
+						lblSettingsAppUpdateStatus.setText("Keine Updates verfügbar.");
+					}
+					btnSettingsAppUpdate.setEnabled(true);
+					
+				} else{
+					
+					// Download update
+					if( !Loader.restartApplication() ){
+						btnSettingsAppUpdate.setEnabled(false);
+						lblSettingsAppUpdateStatus.setText("Manueller Programmneustart erforderlich!");
+					}
+					
+				}
+			}
+		});
 		btnSettingsAppUpdate.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/update_16.png")));
 		panSettingsAppInfo.add(btnSettingsAppUpdate, "6, 2, 1, 3");
 		
