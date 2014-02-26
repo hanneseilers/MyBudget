@@ -34,6 +34,7 @@ import java.awt.event.ItemEvent;
 import java.util.Date;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import javax.swing.border.TitledBorder;
 
 /**
  * Main GUI frame
@@ -124,6 +125,23 @@ public class MainFrame {
 	public JButton btnOverviewTimeDaysReset;
 	public JDateChooser dateChooserOverviewTimePeriodFrom;
 	public JDateChooser dateChooserOverviewTimePeriodTill;
+	public JPanel panSettingsCategories;
+	public JPanel panSettingsViewOptions;
+	public JPanel panSettingsAppInfo;
+	public JLabel lblSettings2;
+	public JLabel lblSettingsAppLastUpdate;
+	public JButton btnSettingsAppUpdate;
+	public JLabel lblSettingsAppUpdateStatus;
+	public JLabel lblSettingsView1;
+	public JLabel lblSettingsView2;
+	public JTextField txtSettingsViewArticleNameLength;
+	public JTextField txtSettingsViewCategoryNameLength;
+	public JLabel lblSettingsView3;
+	public JTextField txtlblSettingsViewCurrencySymbol;
+	public JLabel lblSettingsView4;
+	public JTextField txtSettingsViewPreDecimalPlaces;
+	public JLabel lblSettingsView5;
+	public JTextField txtSettingsViewPostDecimalPlaces;
 
 	/**
 	 * Create the application.
@@ -542,6 +560,135 @@ public class MainFrame {
 		tabbedPane.addTab("Einstellungen", null, tabSettings, null);
 		tabSettings.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("default:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("default:grow"),
+				FormFactory.RELATED_GAP_ROWSPEC,}));
+		
+		panSettingsCategories = new JPanel();
+		panSettingsCategories.setBorder(new TitledBorder(null, "Kategorien", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		tabSettings.add(panSettingsCategories, "2, 2, fill, fill");
+		panSettingsCategories.setLayout(new FormLayout(new ColumnSpec[] {
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,}));
+		lblSettingsCatergory = new JLabel("Kategorien:");
+		panSettingsCategories.add(lblSettingsCatergory, "2, 2");
+		lblSettingsCatergory.setHorizontalAlignment(SwingConstants.RIGHT);
+		cmbSettingsCategories = new JComboBox<Category>();
+		panSettingsCategories.add(cmbSettingsCategories, "4, 2");
+		
+		lblSettingsCategoryName = new JLabel("Kategoriename:");
+		panSettingsCategories.add(lblSettingsCategoryName, "2, 4");
+		txtSettingsCatergoyName = new JTextField();
+		panSettingsCategories.add(txtSettingsCatergoyName, "4, 4");
+		txtSettingsCatergoyName.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				txtSettingsCatergoyName.selectAll();
+			}
+		});
+		txtSettingsCatergoyName.setColumns(10);
+		
+		panSettingsButtons = new JPanel();
+		panSettingsCategories.add(panSettingsButtons, "4, 6");
+		btnSettingsCategoryAdd = new JButton("Kategorie hinzuf\u00FCgen");
+		btnSettingsCategoryAdd.setMnemonic('h');
+		panSettingsButtons.add(btnSettingsCategoryAdd);
+		btnSettingsRemoveCategory = new JButton("Kategorie l\u00F6schen");
+		btnSettingsRemoveCategory.setMnemonic('l');
+		panSettingsButtons.add(btnSettingsRemoveCategory);
+		btnSettingsCategoryRename = new JButton("Kategorie umbennen");
+		btnSettingsCategoryRename.setMnemonic('u');
+		panSettingsButtons.add(btnSettingsCategoryRename);
+		
+		panSettingsViewOptions = new JPanel();
+		panSettingsViewOptions.setBorder(new TitledBorder(null, "Ansichtsoptionen", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		tabSettings.add(panSettingsViewOptions, "2, 4, fill, fill");
+		panSettingsViewOptions.setLayout(new FormLayout(new ColumnSpec[] {
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("25dlu"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("25dlu"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("default:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,}));
+		
+		lblSettingsView1 = new JLabel("Länge Artikelname:");
+		lblSettingsView1.setHorizontalAlignment(SwingConstants.RIGHT);
+		panSettingsViewOptions.add(lblSettingsView1, "2, 2, right, default");
+		
+		txtSettingsViewArticleNameLength = new JTextField();
+		panSettingsViewOptions.add(txtSettingsViewArticleNameLength, "4, 2, fill, default");
+		txtSettingsViewArticleNameLength.setColumns(10);
+		
+		lblSettingsView4 = new JLabel("Vorkammstellen:");
+		lblSettingsView4.setHorizontalAlignment(SwingConstants.RIGHT);
+		panSettingsViewOptions.add(lblSettingsView4, "8, 2, right, default");
+		
+		txtSettingsViewPreDecimalPlaces = new JTextField();
+		panSettingsViewOptions.add(txtSettingsViewPreDecimalPlaces, "10, 2, fill, default");
+		txtSettingsViewPreDecimalPlaces.setColumns(10);
+		
+		lblSettingsView2 = new JLabel("Länge Kategoriename:");
+		lblSettingsView2.setVerticalAlignment(SwingConstants.CENTER);
+		lblSettingsView2.setHorizontalAlignment(SwingConstants.RIGHT);
+		panSettingsViewOptions.add(lblSettingsView2, "2, 4, right, default");
+		
+		txtSettingsViewCategoryNameLength = new JTextField();
+		panSettingsViewOptions.add(txtSettingsViewCategoryNameLength, "4, 4, fill, default");
+		txtSettingsViewCategoryNameLength.setColumns(10);
+		
+		lblSettingsView5 = new JLabel("Nachkommastellen:");
+		lblSettingsView5.setHorizontalAlignment(SwingConstants.RIGHT);
+		panSettingsViewOptions.add(lblSettingsView5, "8, 4, right, default");
+		
+		txtSettingsViewPostDecimalPlaces = new JTextField();
+		panSettingsViewOptions.add(txtSettingsViewPostDecimalPlaces, "10, 4, fill, default");
+		txtSettingsViewPostDecimalPlaces.setColumns(10);
+		
+		lblSettingsView3 = new JLabel("Währung:");
+		lblSettingsView3.setHorizontalAlignment(SwingConstants.RIGHT);
+		panSettingsViewOptions.add(lblSettingsView3, "2, 6, right, default");
+		
+		txtlblSettingsViewCurrencySymbol = new JTextField();
+		panSettingsViewOptions.add(txtlblSettingsViewCurrencySymbol, "4, 6, fill, default");
+		txtlblSettingsViewCurrencySymbol.setColumns(10);
+		
+		panSettingsAppInfo = new JPanel();
+		panSettingsAppInfo.setBorder(new TitledBorder(null, "Programminformationen", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		tabSettings.add(panSettingsAppInfo, "2, 6, fill, fill");
+		panSettingsAppInfo.setLayout(new FormLayout(new ColumnSpec[] {
+				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("default:grow"),
@@ -555,45 +702,29 @@ public class MainFrame {
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,}));
-		lblSettingsCatergory = new JLabel("Kategorien:");
-		lblSettingsCatergory.setHorizontalAlignment(SwingConstants.RIGHT);
-		tabSettings.add(lblSettingsCatergory, "2, 2, right, default");
-		cmbSettingsCategories = new JComboBox<Category>();
-		tabSettings.add(cmbSettingsCategories, "4, 2, fill, default");
-		
-		lblSettingsCategoryName = new JLabel("Kategoriename:");
-		tabSettings.add(lblSettingsCategoryName, "2, 4, right, default");
-		txtSettingsCatergoyName = new JTextField();
-		txtSettingsCatergoyName.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				txtSettingsCatergoyName.selectAll();
-			}
-		});
-		tabSettings.add(txtSettingsCatergoyName, "4, 4, fill, default");
-		txtSettingsCatergoyName.setColumns(10);
-		
-		panSettingsButtons = new JPanel();
-		tabSettings.add(panSettingsButtons, "4, 6, left, top");
-		btnSettingsCategoryAdd = new JButton("Kategorie hinzuf\u00FCgen");
-		btnSettingsCategoryAdd.setMnemonic('h');
-		panSettingsButtons.add(btnSettingsCategoryAdd);
-		btnSettingsRemoveCategory = new JButton("Kategorie l\u00F6schen");
-		btnSettingsRemoveCategory.setMnemonic('l');
-		panSettingsButtons.add(btnSettingsRemoveCategory);
-		btnSettingsCategoryRename = new JButton("Kategorie umbennen");
-		btnSettingsCategoryRename.setMnemonic('u');
-		panSettingsButtons.add(btnSettingsCategoryRename);
+				FormFactory.RELATED_GAP_ROWSPEC,}));
 		
 		lblSettings1 = new JLabel("Programmversion:");
+		panSettingsAppInfo.add(lblSettings1, "2, 2");
 		lblSettings1.setHorizontalAlignment(SwingConstants.RIGHT);
-		tabSettings.add(lblSettings1, "2, 9");
 		
 		lblSettingsApplicationVersion = new JLabel("0");
-		tabSettings.add(lblSettingsApplicationVersion, "4, 9");
+		panSettingsAppInfo.add(lblSettingsApplicationVersion, "4, 2, fill, default");
+		
+		btnSettingsAppUpdate = new JButton("Nach Updates suchen");
+		btnSettingsAppUpdate.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/update_16.png")));
+		panSettingsAppInfo.add(btnSettingsAppUpdate, "6, 2, 1, 3");
+		
+		lblSettings2 = new JLabel("Letztes Update:");
+		lblSettings2.setHorizontalAlignment(SwingConstants.RIGHT);
+		panSettingsAppInfo.add(lblSettings2, "2, 4");
+		
+		lblSettingsAppLastUpdate = new JLabel("no update");
+		panSettingsAppInfo.add(lblSettingsAppLastUpdate, "4, 4, fill, default");
+		
+		lblSettingsAppUpdateStatus = new JLabel("");
+		lblSettingsAppUpdateStatus.setHorizontalAlignment(SwingConstants.RIGHT);
+		panSettingsAppInfo.add(lblSettingsAppUpdateStatus, "2, 6, 5, 1");
 	}
 	
 }
