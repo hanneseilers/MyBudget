@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.event.ChangeEvent;
@@ -75,15 +76,19 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 		}
 		
 		// update gui list
-		ArticleListUpdater update = new ArticleListUpdater( "overview", frmMain.lstOverviewModel, articles );
+		List<Component> components = new ArrayList<Component>();
+		components.add(frmMain.btnOverviewPrint);
+		ArticleListUpdater update = new ArticleListUpdater( "overview", frmMain.lstOverviewModel, articles, components );
 		(new Thread( update )).start();
 		
 		// show income, outgo and balance
 		double total = income + outgo;
+		String currenyFormat = "%" + (Article.numbersPreDecimalPlaces+Article.numbersPostDecimalPlaces+1)
+				+ "."	+ Article.numbersPostDecimalPlaces + "f " + Article.currencySymbol;
 		frmMain.lblOverviewTrend.setText( getTrend() );
-		frmMain.lblOverviewIncomeTotal.setText( String.format("%.2f EUR", income) );
-		frmMain.lblOverviewOutgoTotal.setText(String.format("%.2f EUR", outgo) );
-		frmMain.lblOverviewTotal.setText( String.format("%.2f EUR", total) );		
+		frmMain.lblOverviewIncomeTotal.setText( String.format(currenyFormat, income) );
+		frmMain.lblOverviewOutgoTotal.setText(String.format(currenyFormat, outgo) );
+		frmMain.lblOverviewTotal.setText( String.format(currenyFormat, total) );		
 		if( total < 0){
 			frmMain.lblOverviewTotal.setForeground( new Color(128, 0, 0) );
 		}

@@ -1,5 +1,6 @@
 package de.hanneseilers.core.tasks;
 
+import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ public class ArticleListUpdater implements Runnable {
 
 	private DefaultListModel<Article> model = null;
 	private List<Article> articles = null;
+	private List<Component> components = null;
 	public String name = null;
 	
 	/**
@@ -31,11 +33,12 @@ public class ArticleListUpdater implements Runnable {
 	 * @param model List model to update
 	 * @param articles Articles to ad to list model
 	 * @param name Name of the task
+	 * @param components Components to block until loading article list
 	 */
-	public ArticleListUpdater(String name, DefaultListModel<Article> model, List<Article> articles){
+	public ArticleListUpdater(String name, DefaultListModel<Article> model, List<Article> articles, List<Component> components){
 		this.model = model;
 		this.articles = articles;
-		
+		this.components = components;
 	}
 	
 	@Override
@@ -53,6 +56,9 @@ public class ArticleListUpdater implements Runnable {
 			// add task to task list
 			addTask(this);
 			
+			// block components
+			disableComponents();
+			
 			// clear model
 			SwingUtilities.invokeAndWait( new Runnable() {	
 				
@@ -68,15 +74,57 @@ public class ArticleListUpdater implements Runnable {
 					SwingUtilities.invokeAndWait( new ArticleAdder(model, article) );
 			}
 			
+			// enable components
+			enableComponents();
+			
 			// remove task from task list
 			removeTask(this);
 			
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
+			enableComponents();
 			e.printStackTrace();
 		}
 		
+	}
+	
+	/**
+	 * Disables components
+	 */
+	private void disableComponents(){
+		if( components != null ){
+			SwingUtilities.invokeLater( new Runnable() {
+				
+				@Override
+				public void run() {
+					// block components
+					for( Component component : components ){
+						component.setEnabled(false);
+					}
+				}
+				
+			} );
+		}
+	}
+	
+	/**
+	 * Enables components
+	 */
+	private void enableComponents(){
+		if( components != null ){
+			SwingUtilities.invokeLater( new Runnable() {
+				
+				@Override
+				public void run() {
+					// unblock components
+					for( Component component : components ){
+						component.setEnabled(true);
+					}
+				}
+				
+			} );
+		}
 	}
 	
 	/**

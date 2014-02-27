@@ -179,11 +179,11 @@ public class Loader {
 				appUpdateURL = new URL( updateURL );
 				con = appUpdateURL.openConnection();
 				in = new BufferedReader( new InputStreamReader(con.getInputStream()) );
-				String response = in.readLine().trim();
+				String response = in.readLine();
 				
 				// extract files to download and create download urls
-				if( response != null && response.length() > 0  ){
-					for( String url : response.split(";") ){
+				if( response != null && response.trim().length() > 0  ){
+					for( String url : response.trim().split(";") ){
 						url = config.getString( ConfigurationValues.APP_UPDATE_URL.getKey() ) + url;
 						downloadURL.add( new URL(url) );
 					}

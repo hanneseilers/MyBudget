@@ -7,6 +7,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.event.ChangeEvent;
@@ -20,6 +21,8 @@ import de.hanneseilers.core.tasks.ArticleListUpdater;
 
 public class PageIncome extends Page implements ActionListener, ChangeListener, MouseListener, KeyListener {
 
+	public static String lastFilter = "";
+	
 	/**
 	 * Constructor
 	 */
@@ -69,11 +72,14 @@ public class PageIncome extends Page implements ActionListener, ChangeListener, 
 			articles = db.getArticles( getFilter(),  limit  );
 		}
 		else{
+			lastFilter = "";
 			articles = db.getArticles( "WHERE price >= 0.0", limit );
 		}
 		
 		// update gui list
-		ArticleListUpdater update = new ArticleListUpdater( "income", frmMain.lstIncomeModel, articles );
+		List<Component> components = new ArrayList<Component>();
+		components.add(frmMain.btnIncomePrint);
+		ArticleListUpdater update = new ArticleListUpdater( "income", frmMain.lstIncomeModel, articles, components  );
 		(new Thread( update )).start();
 		
 	}
@@ -85,14 +91,17 @@ public class PageIncome extends Page implements ActionListener, ChangeListener, 
 		if( frmMain.rdbtnIncomeFilterCategory.isSelected() ){
 			int index = frmMain.cmbIncomeFilterCategory.getSelectedIndex();
 			if( index >= 0 ){
+				lastFilter = "in der Kategorie: " + frmMain.cmbIncomeFilterCategory.getItemAt(index).getName();
 				return "WHERE price >= 0.0 AND cid=" + frmMain.cmbIncomeFilterCategory.getItemAt(index).getCID();
 			}
 		}
 		else{
+			lastFilter = "Artikel mit Stichwort: " + frmMain.txtIncomeFilter.getText();
 			return "WHERE price >= 0.0 AND LOWER(article) LIKE '%"
 					+ frmMain.txtIncomeFilter.getText().toLowerCase() + "%'";
 		}
 		
+		lastFilter = "";
 		return "";
 	}
 	

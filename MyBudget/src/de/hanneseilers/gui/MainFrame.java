@@ -15,6 +15,7 @@ import de.hanneseilers.core.Article;
 import de.hanneseilers.core.Category;
 import de.hanneseilers.core.ConfigurationValues;
 import de.hanneseilers.core.Loader;
+import de.hanneseilers.core.tasks.Printer;
 
 import javax.swing.JButton;
 import java.awt.GridLayout;
@@ -33,6 +34,8 @@ import javax.swing.JRadioButton;
 import javax.swing.ListSelectionModel;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -150,6 +153,10 @@ public class MainFrame {
 	public JLabel lblSettingsView6;
 	public JTextField txtSettingsViewArticleMaxRows;
 	private JButton btnOverviewTimeDaysReset;
+	public JButton btnIncomePrint;
+	public JButton btnOutgoPrint;
+	public JPanel panOverviewPrint;
+	public JButton btnOverviewPrint;
 
 	/**
 	 * Create the application.
@@ -257,20 +264,72 @@ public class MainFrame {
 		panIncomeButtons.setLayout(new GridLayout(0, 1, 0, 2));
 		
 		btnIncomeAdd = new JButton("Artikel hinzufügen");
+		btnIncomeAdd.setIconTextGap(8);
+		btnIncomeAdd.setHorizontalAlignment(SwingConstants.LEFT);
+		btnIncomeAdd.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/add_16.png")));
 		btnIncomeAdd.setMnemonic('h');
 		panIncomeButtons.add(btnIncomeAdd);
 		
 		btnIncomeDelete = new JButton("Artikel löschen");
+		btnIncomeDelete.setIconTextGap(8);
+		btnIncomeDelete.setHorizontalAlignment(SwingConstants.LEFT);
+		btnIncomeDelete.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/delete_16.png")));
 		btnIncomeDelete.setMnemonic('l');
 		panIncomeButtons.add(btnIncomeDelete);
 		
 		btnIncomeEdit = new JButton("Artikel bearbeiten");
+		btnIncomeEdit.setIconTextGap(8);
+		btnIncomeEdit.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/edit_16.png")));
+		btnIncomeEdit.setHorizontalAlignment(SwingConstants.LEFT);
 		btnIncomeEdit.setMnemonic('b');
 		panIncomeButtons.add(btnIncomeEdit);
 		
 		btnIncomeRefresh = new JButton("Liste aktualisieren");
+		btnIncomeRefresh.setIconTextGap(8);
+		btnIncomeRefresh.setHorizontalAlignment(SwingConstants.LEFT);
+		btnIncomeRefresh.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/sync_16.png")));
 		btnIncomeRefresh.setMnemonic('a');
 		panIncomeButtons.add(btnIncomeRefresh);
+		
+		btnIncomePrint = new JButton("Liste drucken");
+		btnIncomePrint.setIconTextGap(8);
+		btnIncomePrint.setHorizontalAlignment(SwingConstants.LEFT);
+		btnIncomePrint.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/printer_16.png")));
+		btnIncomePrint.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(lstIncomeModel.size() > 0){
+					
+					// get first and last date
+					Date firstDate = lstIncomeModel.get(lstIncomeModel.size()-1).getDate();
+					Date lastDate = lstIncomeModel.get(0).getDate();
+					
+					// generate content to print
+					Format formatter = new SimpleDateFormat("dd.MM.YYYY");
+					String header = "Einnahmen";
+					String footer = "Ausdruck vom: " + formatter.format(new Date());
+					String content = "vom "
+							+ formatter.format(firstDate) + " bis "
+							+ formatter.format(lastDate) + "\n\n";
+					
+					// check for filter
+					if( PageIncome.lastFilter.length() > 0 ){
+						content += "\n" + PageIncome.lastFilter;
+					}
+					content += "\n\n";
+					
+					for( Object obj : lstIncomeModel.toArray() ){
+						Article article = (Article) obj;
+						content += article.toString() + "\n";
+					}					
+					content += " ";
+					
+					// print content
+					(new Printer(content, header, footer)).print();
+					
+				}
+			}
+		});
+		panIncomeButtons.add(btnIncomePrint);
 		
 		panIncomeFilter = new JPanel();
 		tabIncome.add(panIncomeFilter, "2, 6, 3, 1, fill, fill");
@@ -347,20 +406,72 @@ public class MainFrame {
 		panOutgoButtons.setLayout(new GridLayout(0, 1, 0, 2));
 		
 		btnOutgoAdd = new JButton("Artikel hinzufügen");
+		btnOutgoAdd.setIconTextGap(8);
+		btnOutgoAdd.setHorizontalAlignment(SwingConstants.LEFT);
+		btnOutgoAdd.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/add_16.png")));
 		btnOutgoAdd.setMnemonic('h');
 		panOutgoButtons.add(btnOutgoAdd);
 		
 		btnOutgoDelete = new JButton("Artikel löschen");
+		btnOutgoDelete.setHorizontalAlignment(SwingConstants.LEFT);
+		btnOutgoDelete.setIconTextGap(8);
+		btnOutgoDelete.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/delete_16.png")));
 		btnOutgoDelete.setMnemonic('l');
 		panOutgoButtons.add(btnOutgoDelete);
 		
 		btnOutgoEdit = new JButton("Artikel bearbeiten");
+		btnOutgoEdit.setHorizontalAlignment(SwingConstants.LEFT);
+		btnOutgoEdit.setIconTextGap(8);
+		btnOutgoEdit.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/edit_16.png")));
 		btnOutgoEdit.setMnemonic('b');
 		panOutgoButtons.add(btnOutgoEdit);
 		
 		btnOutgoRefresh = new JButton("Liste aktualisieren");
+		btnOutgoRefresh.setIconTextGap(8);
+		btnOutgoRefresh.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/sync_16.png")));
+		btnOutgoRefresh.setHorizontalAlignment(SwingConstants.LEFT);
 		btnOutgoRefresh.setMnemonic('a');
 		panOutgoButtons.add(btnOutgoRefresh);
+		
+		btnOutgoPrint = new JButton("Liste drucken");
+		btnOutgoPrint.setHorizontalAlignment(SwingConstants.LEFT);
+		btnOutgoPrint.setIconTextGap(8);
+		btnOutgoPrint.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/printer_16.png")));
+		btnOutgoPrint.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(lstOutgoModel.size() > 0){
+					
+					// get first and last date
+					Date firstDate = lstOutgoModel.get(lstOutgoModel.size()-1).getDate();
+					Date lastDate = lstOutgoModel.get(0).getDate();
+					
+					// generate content to print
+					Format formatter = new SimpleDateFormat("dd.MM.YYYY");
+					String header = "Ausgaben";
+					String footer = "Ausdruck vom: " + formatter.format(new Date());
+					String content = "vom "
+							+ formatter.format(firstDate) + " bis "
+							+ formatter.format(lastDate);
+					
+					// check for filter
+					if( PageOutgo.lastFilter.length() > 0 ){
+						content += "\n" + PageOutgo.lastFilter;
+					}
+					content += "\n\n";
+					
+					for( Object obj : lstOutgoModel.toArray() ){
+						Article article = (Article) obj;
+						content += article.toString() + "\n";
+					}
+					content += " ";
+					
+					// print content
+					(new Printer(content, header, footer)).print();
+					
+				}
+			}
+		});
+		panOutgoButtons.add(btnOutgoPrint);
 		
 		panOutgoFilter = new JPanel();
 		tabOutgo.add(panOutgoFilter, "2, 6, 3, 1, fill, fill");
@@ -445,6 +556,88 @@ public class MainFrame {
 		tabOverview.add(lblOverview4, "2, 2, right, default");
 		cmbOverviewCategory = new JComboBox<Category>();
 		tabOverview.add(cmbOverviewCategory, "4, 2, 7, 1, fill, default");
+		
+		panOverviewPrint = new JPanel();
+		tabOverview.add(panOverviewPrint, "12, 2, 1, 7, fill, fill");
+		panOverviewPrint.setLayout(new FormLayout(new ColumnSpec[] {
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("default:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,}));
+		
+		btnOverviewPrint = new JButton("Übersicht drucken");
+		btnOverviewPrint.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(lstOverviewModel.size() > 0){
+					
+					// get first and last date
+					Date firstDate = lstOverviewModel.get(lstOverviewModel.size()-1).getDate();
+					Date lastDate = lstOverviewModel.get(0).getDate();
+					
+					// generate content to print
+					Format formatter = new SimpleDateFormat("dd.MM.YYYY");
+					String header = "Übersicht";
+					String footer = "Ausdruck vom: " + formatter.format(new Date());
+					String content = "";
+					
+					// check if filter used
+					try{
+						if( rdbOverviewTimeDays.isSelected()
+								&& Integer.parseInt(txtOverviewDays.getText()) > 0  ){
+							content = "der letzten " + txtOverviewDays.getText() + " Tage";
+						} else if( rdbOverviewTimePeriod.isSelected() ){
+							content = "vom " + formatter.format(dateChooserOverviewTimePeriodFrom.getDate()) + " bis "
+									+ formatter.format(dateChooserOverviewTimePeriodTill.getDate());
+						} else{
+							content = "vom " + formatter.format(firstDate) + " bis "
+									+ formatter.format(lastDate);
+						}
+					} catch(NumberFormatException err){
+						err.printStackTrace();
+					}
+					
+					if( txtOverviewSearch.getText().trim().length() > 0 ){
+						content += "\nArtikel mit Stichwort: " + txtOverviewSearch.getText();
+					}
+					
+					int index = cmbOverviewCategory.getSelectedIndex();
+					if( cmbOverviewCategory.getItemAt(index).getCID() >= 0 ){
+						content += "\nin der Kategorie: " + cmbOverviewCategory.getItemAt(index).getName();
+					}
+					
+					if( content.length() > 0 ){
+						content += "\n\n";
+					}
+					
+					// add balance
+					content += "Einnahmen = " + lblOverviewIncomeTotal.getText() + "\n";
+					content += " Ausgaben = " + lblOverviewOutgoTotal.getText() + "\n";
+					content += "   Bilanz = " + lblOverviewTotal.getText() + "\n\n";
+					content += "---------------------------\n";
+					content += "Trend: " + lblOverviewTrend.getText() + "\n";
+					content += "---------------------------\n\n";
+					
+					for( Object obj : lstOverviewModel.toArray() ){
+						Article article = (Article) obj;
+						content += article.toString() + "\n";
+					}
+					content += " ";
+					
+					// print content
+					(new Printer(content, header, footer)).print();
+					
+				}
+			}
+		});
+		btnOverviewPrint.setIcon(new ImageIcon(MainFrame.class.getResource("/de/hanneseilers/gui/icon/printer_16.png")));
+		btnOverviewPrint.setIconTextGap(8);
+		btnOverviewPrint.setHorizontalAlignment(SwingConstants.LEFT);
+		panOverviewPrint.add(btnOverviewPrint, "4, 2");
 		lblStichwort = new JLabel("Suchwort:");
 		lblStichwort.setHorizontalAlignment(SwingConstants.RIGHT);
 		tabOverview.add(lblStichwort, "2, 4, right, default");

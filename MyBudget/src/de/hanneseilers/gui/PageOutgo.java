@@ -7,6 +7,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.event.ChangeEvent;
@@ -20,6 +21,8 @@ import de.hanneseilers.core.tasks.ArticleListUpdater;
 
 public class PageOutgo extends Page implements ActionListener, ChangeListener, MouseListener, KeyListener {
 
+	public static String lastFilter = "";
+	
 	/**
 	 * Constructor
 	 */
@@ -70,10 +73,13 @@ public class PageOutgo extends Page implements ActionListener, ChangeListener, M
 		}
 		else{
 			articles = db.getArticles( "WHERE price < 0.0", limit );
+			lastFilter = "";
 		}
 		
 		// update gui list
-		ArticleListUpdater update = new ArticleListUpdater( "outgo", frmMain.lstOutgoModel, articles );
+		List<Component> components = new ArrayList<Component>();
+		components.add(frmMain.btnOutgoPrint);
+		ArticleListUpdater update = new ArticleListUpdater( "outgo", frmMain.lstOutgoModel, articles, components );
 		(new Thread( update )).start();
 		
 	}
@@ -85,14 +91,17 @@ public class PageOutgo extends Page implements ActionListener, ChangeListener, M
 		if( frmMain.rdbtnOutgoFilterCategory.isSelected() ){
 			int index = frmMain.cmbOutgoFilterCategory.getSelectedIndex();
 			if( index >= 0 ){
+				lastFilter = "in der Kategorie: " + frmMain.cmbOutgoFilterCategory.getItemAt(index).getName();
 				return "WHERE price < 0.0 AND cid=" + frmMain.cmbOutgoFilterCategory.getItemAt(index).getCID();
 			}
 		}
 		else{
+			lastFilter = "Artikel mit Stichwort: " + frmMain.txtOutgoFilter.getText();
 			return "WHERE price < 0.0 AND LOWER(article) LIKE '%"
 					+ frmMain.txtOutgoFilter.getText().toLowerCase() + "%'";
 		}
 		
+		lastFilter = "";
 		return "";
 	}
 	
