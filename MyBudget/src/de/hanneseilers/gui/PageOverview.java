@@ -58,8 +58,7 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 		outgo = 0;
 		
 		// get row limit
-		int limit = Loader.config.getInt( ConfigurationValues.ARTICLE_MAX_ROWS.getKey() );
-		List<Article> articles = db.getArticles( getFilter(), limit );
+		List<Article> articles = db.getArticles( getFilter(), -1 );
 		
 		// calculate income and outgo
 		for( Article article : articles ){

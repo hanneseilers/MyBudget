@@ -333,9 +333,6 @@ public class DBController {
 			condition = "";
 		}
 		
-		if( limit < 0 ){
-			limit = 1000;
-		}
 		
 		String key = condition+Integer.toString(limit);
 		
@@ -345,8 +342,15 @@ public class DBController {
 			
 			try{
 				
-				String sql = "SELECT * FROM articles " + condition
+				String sql;
+				if( limit > 0 ){
+					sql = "SELECT * FROM articles " + condition
 						+ " ORDER BY timestamp DESC, aid DESC LIMIT " + limit + ";";
+				}
+				else{
+					sql = "SELECT * FROM articles " + condition
+							+ " ORDER BY timestamp DESC, aid DESC;";
+				}
 				
 				// ad articles form database to articlellist
 				ResultSet result = exec(sql);
