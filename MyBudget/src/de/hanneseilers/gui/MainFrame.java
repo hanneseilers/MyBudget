@@ -44,6 +44,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 /**
  * Main GUI frame
@@ -185,6 +187,32 @@ public class MainFrame {
 		frmMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		frmMain.getContentPane().add(tabbedPane, BorderLayout.CENTER);
+		
+		frmMain.addWindowListener(new WindowListener() {
+			
+			@Override
+			public void windowOpened(WindowEvent arg0) {}
+			
+			@Override
+			public void windowIconified(WindowEvent arg0) {}
+			
+			@Override
+			public void windowDeiconified(WindowEvent arg0) {}
+			
+			@Override
+			public void windowDeactivated(WindowEvent arg0) {}
+			
+			@Override
+			public void windowClosing(WindowEvent arg0) {
+				Loader.config.setProperty( ConfigurationValues.ARTICLE_SAVE_LAST_DATE.getKey(), false );
+			}
+			
+			@Override
+			public void windowClosed(WindowEvent arg0) {}
+			
+			@Override
+			public void windowActivated(WindowEvent arg0) {}
+		});
 		
 		tabStart = new JPanel();
 		tabbedPane.addTab("Start", null, tabStart, null);

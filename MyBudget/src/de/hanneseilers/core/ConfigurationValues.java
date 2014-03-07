@@ -7,11 +7,13 @@ package de.hanneseilers.core;
  */
 public enum ConfigurationValues {
 
-	APP_VERSION ("app.version", "1.2.0"),
-	APP_UPDATE_REVISION ("app.update.revision", 4),
+	APP_VERSION ("app.version", "1.2.1"),
+	APP_UPDATE_REVISION ("app.update.revision", 5),
 	APP_UPDATE_NAME ("app.update.name", "mybudget"),
 	APP_UPDATE_URL ("app.update.url", "http://www.private-factory.de/appupdate/"),
 	APP_LAST_UPDATE ("app.update.last", "not updated"),
+	ARTICLE_SAVE_LAST_DATE ("article.last.date.save", true),
+	ARTICLE_LAST_DATE ("article.last.date", 0),
 	
 	ARTICLE_TIMESTAMP_DAYS ("article.timestamp.days", 24*60*60*1000),
 	ARTICLE_NAME_LENGTH ("article.name.length", 40),

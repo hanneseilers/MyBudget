@@ -16,7 +16,9 @@ import com.toedter.calendar.JDateChooser;
 
 import de.hanneseilers.core.Article;
 import de.hanneseilers.core.Category;
+import de.hanneseilers.core.ConfigurationValues;
 import de.hanneseilers.core.DBController;
+import de.hanneseilers.core.Loader;
 import de.hanneseilers.core.MyBudget;
 
 import javax.swing.JLabel;
@@ -38,6 +40,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.ButtonGroup;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import javax.swing.JCheckBox;
 
 @SuppressWarnings("serial")
 public class ArticleDialog extends JDialog {
@@ -51,6 +54,7 @@ public class ArticleDialog extends JDialog {
 	private JRadioButton rdbtnIncome;
 	private JRadioButton rdbtnOutgo;
 	private JDateChooser dateChooser;
+	public JCheckBox chkSaveLastDate;
 	
 	private DBController db = MyBudget.database;
 	private Logger logger = Logger.getLogger(getClass());
@@ -61,6 +65,7 @@ public class ArticleDialog extends JDialog {
 	private boolean isSaved = false;
 	private Article article = null;
 	public final ButtonGroup rdbgrpIncomeOutgo = new ButtonGroup();
+	
 	
 	/**
 	 * Create a dialog
@@ -81,15 +86,22 @@ public class ArticleDialog extends JDialog {
 		
 		String articleName = "";
 		String articlePrice = "0.00";
-		Date articleDate = new Date(System.currentTimeMillis());
+		Date articleDate;
+		if( Loader.config.getBoolean(ConfigurationValues.ARTICLE_SAVE_LAST_DATE.getKey()) ){
+			articleDate = new Date( Loader.config.getLong(ConfigurationValues.ARTICLE_LAST_DATE.getKey()) );
+		}
+		else{
+			articleDate = new Date(System.currentTimeMillis());
+		}
+		
+		System.out.println("loaded " + articleDate.getTime());
 		
 		// set article
 		if( aArticle != null ){
 			article = aArticle;
 			articleName = article.getArticle();
 			articlePrice = String.format( "%."+Article.numbersPostDecimalPlaces+"f", (article.getPrice()) );
-			articleDate = article.getDate();
-			
+			articleDate = article.getDate();			
 		}
 		
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);		
@@ -115,7 +127,10 @@ public class ArticleDialog extends JDialog {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,}));
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,}));
 		
 		JLabel lblArticle = new JLabel("Artikel:");
 		contentPanel.add(lblArticle, "2, 2, right, default");
@@ -181,13 +196,18 @@ public class ArticleDialog extends JDialog {
 		rdbgrpIncomeOutgo.add(rdbtnIncome);
 		panArticleDialog.add(rdbtnIncome);
 		rdbtnIncome.setSelected(true);
-
+		
 		JLabel lblCategory = new JLabel("Kategorie:");
 		contentPanel.add(lblCategory, "2, 10, right, default");
+		
+		chkSaveLastDate = new JCheckBox("Datum merken");
+		chkSaveLastDate.setSelected(true);
+		contentPanel.add(chkSaveLastDate, "2, 12, 5, 1");
 
 		// add categories
 		cmbCategory = new JComboBox<Category>();
 		contentPanel.add(cmbCategory, "4, 10, 3, 1, fill, default");
+		
 		for( Category c : db.getCategories() ){
 			cmbCategory.addItem(c);
 		}
@@ -289,6 +309,15 @@ public class ArticleDialog extends JDialog {
 			article.update();
 			logger.debug("Updated article: " + article.toString());
 		}
+		
+		// Check if to save last date
+		Loader.config.setProperty( ConfigurationValues.ARTICLE_SAVE_LAST_DATE.getKey(),
+				chkSaveLastDate.isSelected() );
+		Loader.config.setProperty( ConfigurationValues.ARTICLE_LAST_DATE.getKey(),
+				articleDate.getTime() );
+		System.out.println("saved " + articleDate.getTime());
+
+		
 		logger.debug("Hiding dialog window: " + getTitle());
 		setVisible(false);		
 		
