@@ -123,7 +123,12 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 			category = frmMain.cmbOverviewCategory.getItemAt(index);
 		}
 		
-		long days = Long.parseLong( frmMain.txtOverviewDays.getText() ) * Article.timestampDay;
+		long days;
+		try{
+			days= Long.parseLong( frmMain.txtOverviewDays.getText() ) * Article.timestampDay;
+		} catch(NumberFormatException e){
+			days = -1;
+		}
 		String searchWord = frmMain.txtOverviewSearch.getText().trim();
 		
 		// edit sql filter statement
@@ -177,7 +182,12 @@ public class PageOverview extends Page implements ActionListener, ChangeListener
 	 */
 	private String getTrend(){
 		String trend = "Kein Zeitraum verfübar!";
-		long days = Long.parseLong( frmMain.txtOverviewDays.getText() ) * Article.timestampDay;
+		long days;
+		try{ 
+			days = Long.parseLong( frmMain.txtOverviewDays.getText() ) * Article.timestampDay;
+		} catch(NumberFormatException e){
+			days = -1;
+		}
 		
 		if( days > 0  ){
 			// calculate timezone

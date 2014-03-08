@@ -719,7 +719,7 @@ public class MainFrame {
 			}
 		});
 		txtOverviewDays.setHorizontalAlignment(SwingConstants.CENTER);
-		txtOverviewDays.setText("-1");
+		txtOverviewDays.setText("alle Tage");
 		tabOverview.add(txtOverviewDays, "4, 8, fill, center");
 		txtOverviewDays.setColumns(10);
 		
@@ -730,7 +730,7 @@ public class MainFrame {
 		btnOverviewTimeDaysReset.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		btnOverviewTimeDaysReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				txtOverviewDays.setText("-1");
+				txtOverviewDays.setText("alle Tage");
 			}
 		});
 		btnOverviewTimeDaysReset.setMnemonic('a');
@@ -896,7 +896,7 @@ public class MainFrame {
 		panSettingsViewOptions.add(txtSettingsViewArticleNameLength, "4, 2, fill, default");
 		txtSettingsViewArticleNameLength.setColumns(10);
 		
-		lblSettingsView4 = new JLabel("Vorkammstellen:");
+		lblSettingsView4 = new JLabel("Vorkommastellen:");
 		lblSettingsView4.setHorizontalAlignment(SwingConstants.RIGHT);
 		panSettingsViewOptions.add(lblSettingsView4, "8, 2, right, default");
 		
