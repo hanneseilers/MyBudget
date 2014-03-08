@@ -3,6 +3,9 @@ package de.hanneseilers.gui;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import java.awt.BorderLayout;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+
 import javax.swing.JPanel;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -1054,6 +1057,20 @@ public class MainFrame {
 		lblSettingsAppUpdateStatus = new JLabel("");
 		lblSettingsAppUpdateStatus.setHorizontalAlignment(SwingConstants.RIGHT);
 		panSettingsAppInfo.add(lblSettingsAppUpdateStatus, "2, 6, 5, 1");
+		
+		// Adding global key listener
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+			
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent e) {
+				if( e.getKeyCode() == KeyEvent.VK_ESCAPE ){
+					// resume to starts creen
+					tabbedPane.setSelectedIndex(0);
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 	
 }

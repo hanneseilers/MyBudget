@@ -3,6 +3,7 @@ package de.hanneseilers.gui;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -35,6 +36,14 @@ public class PageOutgo extends Page implements ActionListener, ChangeListener, M
 		frmMain.btnOutgoFilter.addActionListener(this);
 		frmMain.lstOutgo.addMouseListener(this);
 		frmMain.lstOutgo.addKeyListener(this);
+		frmMain.txtOutgoFilter.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if( e.getKeyCode() == KeyEvent.VK_ENTER ){
+					updateArticlesList(true);
+				}
+			}
+		});
 		
 		updateArticlesList();
 		updateCategoriesList();
@@ -61,7 +70,7 @@ public class PageOutgo extends Page implements ActionListener, ChangeListener, M
 	 * Updates article list
 	 * @param useFilter Set true to use filter
 	 */
-	private void updateArticlesList(boolean useFilter){
+	private synchronized void updateArticlesList(boolean useFilter){
 		
 		// get row limit
 		int limit = Loader.config.getInt( ConfigurationValues.ARTICLE_MAX_ROWS.getKey() );
