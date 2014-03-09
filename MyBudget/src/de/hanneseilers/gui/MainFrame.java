@@ -57,6 +57,8 @@ import java.awt.event.WindowListener;
  */
 public class MainFrame {
 
+	private static final String ALL_DAYS_TEXT = "alle Tage";
+	
 	private JFrame frmMain;
 	public JTabbedPane tabbedPane;
 	public JPanel tabStart;
@@ -705,7 +707,7 @@ public class MainFrame {
 					}
 				}
 				else{
-					txtOverviewDays.setText("-1");
+					txtOverviewDays.setText(ALL_DAYS_TEXT);
 				}
 				
 			}
@@ -722,18 +724,18 @@ public class MainFrame {
 			}
 		});
 		txtOverviewDays.setHorizontalAlignment(SwingConstants.CENTER);
-		txtOverviewDays.setText("alle Tage");
+		txtOverviewDays.setText(ALL_DAYS_TEXT);
 		tabOverview.add(txtOverviewDays, "4, 8, fill, center");
 		txtOverviewDays.setColumns(10);
 		
 		lblOverview7 = new JLabel("Tage");
 		tabOverview.add(lblOverview7, "6, 8");
 		
-		btnOverviewTimeDaysReset = new JButton("alle Tage");
+		btnOverviewTimeDaysReset = new JButton(ALL_DAYS_TEXT);
 		btnOverviewTimeDaysReset.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		btnOverviewTimeDaysReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				txtOverviewDays.setText("alle Tage");
+				txtOverviewDays.setText(ALL_DAYS_TEXT);
 			}
 		});
 		btnOverviewTimeDaysReset.setMnemonic('a');
