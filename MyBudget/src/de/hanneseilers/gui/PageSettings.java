@@ -29,7 +29,11 @@ public class PageSettings extends Page implements ActionListener, ChangeListener
 		
 		updateViewSettings();
 		updateCategoriesList();
-		frmMain.cmbSettingsCategories.setSelectedIndex(0);
+		try{
+			frmMain.cmbSettingsCategories.setSelectedIndex(0);
+		} catch( IllegalArgumentException e ){
+			e.printStackTrace();
+		}
 	}
 	
 	/**
