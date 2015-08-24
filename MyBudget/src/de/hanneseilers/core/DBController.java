@@ -269,6 +269,7 @@ public class DBController {
 			String sql = "SELECT COUNT(*) AS num FROM categories";
 			if( (exec(sql).getInt("num") == 0) ){
 				categoriesList.clear();
+				return true;
 			}
 			
 		} catch (SQLException e) {
