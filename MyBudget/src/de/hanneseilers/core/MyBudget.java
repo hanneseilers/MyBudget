@@ -46,6 +46,7 @@ public class MyBudget {
 		initCategories();
 		
 		// Execute patches
+		splash.setStatus("Patching application...");
 		patch( Loader.config.getInt(ConfigurationValues.APP_LAST_PATCH.getKey(), (int) ConfigurationValues.APP_LAST_PATCH.getDefaultValue()) );
 		
 		// Create gui and gui page objects

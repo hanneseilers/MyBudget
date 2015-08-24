@@ -211,6 +211,11 @@ public class Loader {
 		pathToReplace = pathToReplace.substring(0, pathToReplace.lastIndexOf("/")) + "/";
 		pathToReplace = pathToReplace.replace("file:/", "");
 		
+		// fix path for linux systems
+		if( System.getProperty("os.name").equals("Linux") && !pathToReplace.startsWith("/") ){
+			pathToReplace = "/" + pathToReplace;
+		}
+		
 		logger.info("Updating to revision "
 				+ Integer.toString( config.getInt(ConfigurationValues.APP_UPDATE_REVISION.getKey())+1 ));
 		
