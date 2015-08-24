@@ -54,83 +54,71 @@ public class ArticleDialog extends JDialog {
 	private JRadioButton rdbtnOutgo;
 	private JDateChooser dateChooser;
 	public JCheckBox chkSaveLastDate;
-	
+	public JCheckBox chkSaveLastCategory;
+
 	private DBController db = MyBudget.database;
 	private Logger logger = Logger.getLogger(getClass());
-	
+
 	/**
 	 * Data of dialog
 	 */
 	private boolean isSaved = false;
 	private Article article = null;
 	public final ButtonGroup rdbgrpIncomeOutgo = new ButtonGroup();
-	
-	
+
 	/**
 	 * Create a dialog
+	 * 
 	 * @param aType
 	 * @param aArticle
 	 */
 	public ArticleDialog(ArticleDialogType aType, Article aArticle) {
-		
+
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent arg0) {
 				dialogCanceled();
 			}
 		});
-		
+
 		// set dialog title
-		setTitle( aType.getTitle() );
-		
+		setTitle(aType.getTitle());
+
 		String articleName = "";
 		String articlePrice = "0.00";
 		Date articleDate;
-		if( Loader.config.getBoolean(ConfigurationValues.ARTICLE_SAVE_LAST_DATE.getKey()) ){
-			articleDate = new Date( Loader.config.getLong(ConfigurationValues.ARTICLE_LAST_DATE.getKey()) );
-		}
-		else{
+		if (Loader.config.getBoolean(ConfigurationValues.ARTICLE_SAVE_LAST_DATE.getKey())) {
+			articleDate = new Date(Loader.config.getLong(ConfigurationValues.ARTICLE_LAST_DATE.getKey()));
+		} else {
 			articleDate = new Date(System.currentTimeMillis());
 		}
-		
+
 		System.out.println("loaded " + articleDate.getTime());
-		
+
 		// set article
-		if( aArticle != null ){
+		if (aArticle != null) {
 			article = aArticle;
 			articleName = article.getArticle();
-			articlePrice = String.format( "%."+Article.numbersPostDecimalPlaces+"f", (article.getPrice()) );
-			articleDate = article.getDate();			
+			articlePrice = String.format("%." + Article.numbersPostDecimalPlaces + "f", (article.getPrice()));
+			articleDate = article.getDate();
 		}
-		
-		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);		
-		setBounds(100, 100, 312, 264);
+
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setBounds(100, 100, 312, 283);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.NORTH);
-		contentPanel.setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.RELATED_GAP_COLSPEC,
-				FormFactory.DEFAULT_COLSPEC,
-				FormFactory.RELATED_GAP_COLSPEC,
-				FormFactory.DEFAULT_COLSPEC,
-				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("default:grow"),
-				FormFactory.RELATED_GAP_COLSPEC,},
-			new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,}));
-		
+		contentPanel.setLayout(new FormLayout(
+				new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC,
+						FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC, FormFactory.RELATED_GAP_COLSPEC,
+						ColumnSpec.decode("default:grow"), FormFactory.RELATED_GAP_COLSPEC },
+				new RowSpec[] { FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
+						FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC,
+						FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
+						FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC,
+						FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
+						FormFactory.RELATED_GAP_ROWSPEC }));
+
 		JLabel lblArticle = new JLabel("Artikel:");
 		contentPanel.add(lblArticle, "2, 2, right, default");
 
@@ -149,7 +137,7 @@ public class ArticleDialog extends JDialog {
 		lblDatum.setVerticalAlignment(SwingConstants.TOP);
 		lblDatum.setHorizontalAlignment(SwingConstants.RIGHT);
 		contentPanel.add(lblDatum, "2, 4");
-		
+
 		dateChooser = new JDateChooser();
 		((JTextField) dateChooser.getDateEditor().getUiComponent()).addFocusListener(new FocusAdapter() {
 			@Override
@@ -157,8 +145,8 @@ public class ArticleDialog extends JDialog {
 				((JTextField) e.getSource()).selectAll();
 			}
 		});
-		dateChooser.setDate( articleDate );
-		contentPanel.add( dateChooser, "4, 4, 3, 1" );
+		dateChooser.setDate(articleDate);
+		contentPanel.add(dateChooser, "4, 4, 3, 1");
 
 		JLabel lblPrice = new JLabel("Preis:");
 		contentPanel.add(lblPrice, "2, 6, right, default");
@@ -167,12 +155,12 @@ public class ArticleDialog extends JDialog {
 		txtPrice.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
-				SwingUtilities.invokeLater( new Runnable() {					
+				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						txtPrice.selectAll();						
+						txtPrice.selectAll();
 					}
-				} );
+				});
 			}
 		});
 		txtPrice.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -195,41 +183,37 @@ public class ArticleDialog extends JDialog {
 		rdbgrpIncomeOutgo.add(rdbtnIncome);
 		panArticleDialog.add(rdbtnIncome);
 		rdbtnIncome.setSelected(true);
-		
+
 		JLabel lblCategory = new JLabel("Kategorie:");
 		contentPanel.add(lblCategory, "2, 10, right, default");
-		
+
 		chkSaveLastDate = new JCheckBox("Datum merken");
 		chkSaveLastDate.setSelected(true);
 		contentPanel.add(chkSaveLastDate, "2, 12, 5, 1");
 
+		chkSaveLastCategory = new JCheckBox("Kategorie merken");
+		chkSaveLastCategory.setSelected(true);
+		contentPanel.add(chkSaveLastCategory, "2, 14, 5, 1");
+
 		// add categories
 		cmbCategory = new JComboBox<Category>();
 		contentPanel.add(cmbCategory, "4, 10, 3, 1, fill, default");
-		
-		for( Category c : db.getCategories() ){
+
+		for (Category c : db.getCategories()) {
 			cmbCategory.addItem(c);
 		}
-		
+
 		// select category of article in JComboBox
-		if( article != null
-				&& article.getCategory() != null
-				&& article.getCategory().getCID() > 0 ){
-			
-			String categoryName = article.getCategory().getName(); 
-			for( int i=0; i < cmbCategory.getItemCount(); i++ ){
-				if( cmbCategory.getItemAt(i).getName().equals(categoryName) ){
-					cmbCategory.setSelectedIndex(i);
-					break;
-				}
-			}
-			
+		if (article != null && article.getCategory() != null && article.getCategory().getCID() > 0) {
+			selectCategroy(article.getCategory().getName());
+		} else if (Loader.config.getBoolean(ConfigurationValues.ARTICLE_SAVE_LAST_CATEGORY.getKey())) {
+			selectCategroy(Loader.config.getString(ConfigurationValues.ARTICLE_LAST_CATEGORY.getKey()));
 		}
 
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		getContentPane().add(buttonPane, BorderLayout.SOUTH);
-		
+
 		btnSave = new JButton("Speichern");
 		btnSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -249,57 +233,68 @@ public class ArticleDialog extends JDialog {
 		});
 		btnCancel.setActionCommand("Cancel");
 		buttonPane.add(btnCancel);
-		
+
 		// set income/outgo radio button selection
-		if( aType == ArticleDialogType.OUTGO_ADD
-				|| aType == ArticleDialogType.OUTGO_EDIT ){
+		if (aType == ArticleDialogType.OUTGO_ADD || aType == ArticleDialogType.OUTGO_EDIT) {
 			rdbtnOutgo.setSelected(true);
 		}
-			
+
 	}
-	
+
+	/**
+	 * Selects a catergory from drop down list.
+	 * 
+	 * @param categoryName
+	 *            {@link String} of category name.
+	 */
+	private void selectCategroy(String categoryName) {
+		for (int i = 0; i < cmbCategory.getItemCount(); i++) {
+			if (cmbCategory.getItemAt(i).getName().equals(categoryName)) {
+				cmbCategory.setSelectedIndex(i);
+				break;
+			}
+		}
+	}
+
 	/**
 	 * Call if dialog should be saved
 	 */
-	private void dialogSaved(){
-		
+	private void dialogSaved() {
+
 		// Get article data
 		String articleName = txtArticle.getText();
 		Double articlePrice = 0.0;
 		Date articleDate = dateChooser.getDate();
-		long curDay = (System.currentTimeMillis()/Article.timestampDay) * Article.timestampDay;
-		
+		long curDay = (System.currentTimeMillis() / Article.timestampDay) * Article.timestampDay;
+
 		// check datedate
-		if( articleDate == null ){
+		if (articleDate == null) {
 			articleDate = new Date(curDay);
 		}
-		
+
 		// try to convert price to double
-		try{
-			articlePrice = Double.parseDouble( txtPrice.getText().replace(',', '.') );
-		}
-		catch(NumberFormatException e){
+		try {
+			articlePrice = Double.parseDouble(txtPrice.getText().replace(',', '.'));
+		} catch (NumberFormatException e) {
 			articlePrice = 0.0;
 		}
-		
-		Category articleCategory = cmbCategory.getItemAt( cmbCategory.getSelectedIndex() );
-		
+
+		Category articleCategory = cmbCategory.getItemAt(cmbCategory.getSelectedIndex());
+
 		// check for income or outgo
-		if( rdbtnOutgo.isSelected() && articlePrice >= 0 ){
+		if (rdbtnOutgo.isSelected() && articlePrice >= 0) {
+			articlePrice *= -1.0;
+		} else if (rdbtnIncome.isSelected() && articlePrice < 0) {
 			articlePrice *= -1.0;
 		}
-		else if( rdbtnIncome.isSelected() && articlePrice < 0 ){
-			articlePrice *= -1.0;
-		}
-		
-		// check if to upodate or to add article
-		if( article == null ){
-			// add new article			
-			article = new Article( articleName, articlePrice, articleDate, articleCategory );
+
+		// check if to update or to add article
+		if (article == null) {
+			// add new article
+			article = new Article(articleName, articlePrice, articleDate, articleCategory);
 			article.update();
 			logger.debug("Added new article: " + article.toString());
-		}
-		else{
+		} else {
 			// update article
 			article.setArticle(articleName);
 			article.setDate(articleDate);
@@ -308,34 +303,38 @@ public class ArticleDialog extends JDialog {
 			article.update();
 			logger.debug("Updated article: " + article.toString());
 		}
-		
-		// Check if to save last date
-		Loader.config.setProperty( ConfigurationValues.ARTICLE_SAVE_LAST_DATE.getKey(),
-				chkSaveLastDate.isSelected() );
-		Loader.config.setProperty( ConfigurationValues.ARTICLE_LAST_DATE.getKey(),
-				articleDate.getTime() );
-		System.out.println("saved " + articleDate.getTime());
 
-		
+		// Check if to save last date
+		Loader.config.setProperty(ConfigurationValues.ARTICLE_SAVE_LAST_DATE.getKey(), chkSaveLastDate.isSelected());
+		Loader.config.setProperty(ConfigurationValues.ARTICLE_LAST_DATE.getKey(), articleDate.getTime());
+
+		// Check if to save last category
+		Loader.config.setProperty(ConfigurationValues.ARTICLE_SAVE_LAST_CATEGORY.getKey(),
+				chkSaveLastCategory.isSelected());
+		Loader.config.setProperty(ConfigurationValues.ARTICLE_LAST_CATEGORY.getKey(),
+				cmbCategory.getItemAt(cmbCategory.getSelectedIndex()).getName());
+
 		logger.debug("Hiding dialog window: " + getTitle());
-		setVisible(false);		
-		
+		setVisible(false);
+
 	}
-	
+
 	/**
 	 * Call if dialog should be canceled
 	 */
-	private void dialogCanceled(){
+	private void dialogCanceled() {
 		logger.debug("Dialog window aborted.");
 		article = null;
 		setVisible(false);
 	}
-	
+
 	/**
 	 * Shows dialog
-	 * @param Returns edited article object or null if dialog closed
+	 * 
+	 * @param Returns
+	 *            edited article object or null if dialog closed
 	 */
-	public Article showDialog(){
+	public Article showDialog() {
 		logger.debug("Openening dialog: " + getTitle());
 		setModal(true);
 		setVisible(true);

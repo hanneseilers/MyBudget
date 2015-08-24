@@ -14,6 +14,8 @@ public enum ConfigurationValues {
 	APP_LAST_UPDATE ("app.update.last", "not updated"),
 	ARTICLE_SAVE_LAST_DATE ("article.last.date.save", true),
 	ARTICLE_LAST_DATE ("article.last.date", 0),
+	ARTICLE_SAVE_LAST_CATEGORY ("article.last.category.save", true),
+	ARTICLE_LAST_CATEGORY ("article.last.category", ""),
 	
 	ARTICLE_TIMESTAMP_DAYS ("article.timestamp.days", 24*60*60*1000),
 	ARTICLE_NAME_LENGTH ("article.name.length", 40),

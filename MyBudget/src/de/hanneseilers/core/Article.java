@@ -26,7 +26,8 @@ public class Article {
 	 * Constructor
 	 */
 	public Article(){
-		setDate( new Date(convertTimestamp(System.currentTimeMillis())) );
+//		setDate( new Date(convertTimestamp(System.currentTimeMillis())) );
+		setDate( new Date(System.currentTimeMillis()) );
 	}
 	
 	/**
@@ -150,7 +151,7 @@ public class Article {
 		calendar.set(Calendar.MILLISECOND, 0);
 		date = calendar.getTime();
 		
-		date.setTime( convertTimestamp(date.getTime()) );
+//		date.setTime( convertTimestamp(date.getTime()) );
 		this.date = date;
 	}
 
@@ -232,9 +233,10 @@ public class Article {
 	 * @param timestamp
 	 * @return
 	 */
-	private long convertTimestamp(long timestamp){
-		return timestamp - (timestamp%timestampDay);
-	}
+//	private long convertTimestamp(long timestamp){
+//		System.out.println( "convert timestamp: " + timestamp + " % " + timestampDay + " = " + (timestamp%timestampDay) );
+//		return timestamp - (timestamp%timestampDay);
+//	}
 	
 	
 	/**
