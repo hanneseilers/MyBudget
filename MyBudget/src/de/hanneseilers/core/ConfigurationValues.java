@@ -12,6 +12,7 @@ public enum ConfigurationValues {
 	APP_UPDATE_NAME ("app.update.name", "mybudget"),
 	APP_UPDATE_URL ("app.update.url", "http://www.private-factory.de/appupdate/"),
 	APP_LAST_UPDATE ("app.update.last", "not updated"),
+	APP_LAST_PATCH ("app.patch.last", 0),
 	ARTICLE_SAVE_LAST_DATE ("article.last.date.save", true),
 	ARTICLE_LAST_DATE ("article.last.date", 0),
 	ARTICLE_SAVE_LAST_CATEGORY ("article.last.category.save", true),

@@ -1,5 +1,7 @@
 package de.hanneseilers.core;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import de.hanneseilers.gui.MainFrame;
 import de.hanneseilers.gui.PageIncome;
@@ -43,6 +45,9 @@ public class MyBudget {
 		splash.setStatus("Initiating categories...");
 		initCategories();
 		
+		// Execute patches
+		patch( Loader.config.getInt(ConfigurationValues.APP_LAST_PATCH.getKey(), (int) ConfigurationValues.APP_LAST_PATCH.getDefaultValue()) );
+		
 		// Create gui and gui page objects
 		splash.setStatus("Loading main frame pages...");
 		frmMain = new MainFrame();
@@ -81,6 +86,28 @@ public class MyBudget {
 			database.addCategory( new Category("Urlaub") );
 			database.addCategory( new Category("Diverses") );
 		}
+	}
+	
+	/**
+	 * Patches application.
+	 * @param patch	{@link Integer} of last executed patch.
+	 */
+	private void patch(int patch){
+		
+		// Correcting wrong database article timestamps.
+		if( patch < 1 ){
+			logger.info( "Executing patch #1" );
+			for( Article vArticle : database.getArticles(null, 0) ){
+				Date vDate = vArticle.getDate();
+				vDate.setTime( vDate.getTime()
+						+ Loader.config.getLong(ConfigurationValues.ARTICLE_TIMESTAMP_DAYS.getKey()) );
+				vArticle.setDate( vDate );
+				database.updateArticle(vArticle);
+				logger.info( "Updated " + vArticle );
+			}
+			Loader.config.setProperty( ConfigurationValues.APP_LAST_PATCH.getKey(), 1 );
+		}
+		
 	}
 
 }
